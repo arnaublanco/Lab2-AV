@@ -3,13 +3,21 @@
 #include "application.h"
 #include "extra/hdre.h"
 
-StandardMaterial::StandardMaterial(){ 
+StandardMaterial::StandardMaterial()
+{
 	color = vec4(1.f, 1.f, 1.f, 1.f);
-	this->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/flat.fs");
+	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/flat.fs");
 }
 
 StandardMaterial::~StandardMaterial()
 {
+
+}
+
+PBRMaterial::PBRMaterial() {
+}
+
+PBRMaterial::~PBRMaterial() {
 
 }
 
@@ -50,45 +58,6 @@ void StandardMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
 void StandardMaterial::renderInMenu()
 {
 	ImGui::ColorEdit3("Color", (float*)&color); // Edit 3 floats representing a color
-}
-
-void PhongMaterial::renderInMenu() {
-	ImGui::DragFloat3("Ambient", (float*)&ambientMaterial, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat3("Diffuse", (float*)&diffuseMaterial, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat3("Specular", (float*)&specularMaterial, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat("Alpha", &alpha, 0.1f, 1.0f, 50.0f);
-}
-
-//Material es la clase base, StandarMat tambe es un tipus de clase base pero amb mes coses. Igual que el profe fa el Wireframe material 
-// nosaltres fem el PhonMaterial. Si posem mes coses a standard despres tambe les hem de posar a Wire.
-// creem el phong per 
-PhongMaterial::PhongMaterial(Vector3 ambientMaterial, Vector3 diffuseMaterial, Vector3 specularMaterial, float alpha){
-
-	this->ambientMaterial = ambientMaterial;
-	this->diffuseMaterial = diffuseMaterial;
-	this->specularMaterial = specularMaterial;
-	this->alpha = alpha;
-}
-
-void PhongMaterial::setUniforms(Camera* camera, Matrix44 model) {
-
-	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	shader->setUniform("u_camera_position", camera->eye);
-	shader->setUniform("u_model", model);
-	shader->setUniform("u_time", Application::instance->time);
-	shader->setUniform("u_output", Application::instance->output);
-
-	shader->setUniform("u_color", color);
-	shader->setUniform("u_exposure", Application::instance->scene_exposure);
-
-	shader->setVector3("ambientMaterial", ambientMaterial);
-	shader->setVector3("diffuseMaterial", diffuseMaterial);
-	shader->setVector3("specularMaterial", specularMaterial);
-	shader->setFloat("alpha", alpha);
-
-	if (texture) {
-		shader->setUniform("u_texture", texture);
-	}
 }
 
 WireframeMaterial::WireframeMaterial()

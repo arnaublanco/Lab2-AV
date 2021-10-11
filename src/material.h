@@ -22,26 +22,26 @@ public:
 class StandardMaterial : public Material {
 public:
 
-	StandardMaterial(); 
+	StandardMaterial();
 	~StandardMaterial();
 
 	void setUniforms(Camera* camera, Matrix44 model);
 	void render(Mesh* mesh, Matrix44 model, Camera * camera);
 	void renderInMenu();
 };
- 
-//afegit per nos
-class PhongMaterial : public StandardMaterial {
-public: 
-	Vector3 ambientMaterial;
-	Vector3 diffuseMaterial;
-	Vector3 specularMaterial;
-	float alpha;
-	int isMirror = 0;
 
-	PhongMaterial(Vector3 ambientMaterial, Vector3 diffuseMaterial, Vector3 specularMaterial, float alpha);
-	void setUniforms(Camera* camera, Matrix44 model);
-	void renderInMenu();
+class PBRMaterial : public StandardMaterial {
+public:
+
+	Texture* albedo = NULL;
+	Texture* metalness = NULL;
+	Texture* roughness = NULL;
+
+	float roughness_factor;
+	float metalness_factor;
+
+	PBRMaterial();
+	~PBRMaterial();
 };
 
 class WireframeMaterial : public StandardMaterial {
@@ -52,4 +52,5 @@ public:
 
 	void render(Mesh* mesh, Matrix44 model, Camera * camera);
 };
+
 #endif

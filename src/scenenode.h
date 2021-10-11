@@ -8,8 +8,6 @@
 #include "camera.h"
 #include "material.h"
 
-//Review
-
 
 class SceneNode {
 public:
@@ -31,27 +29,27 @@ public:
 	virtual void renderInMenu();
 };
 
-class SkyBoxNode : public SceneNode {
+class Light : public SceneNode {
 public:
+	Vector3 position; 
+
+	Light();
+	~Light();
+
+
+};
+
+class SkyBoxNode : public SceneNode {
+public: 
 	SkyBoxNode();
 	SkyBoxNode(const char* name);
 	~SkyBoxNode();
+
 	void render(Camera* camera);
-	void renderInMenu();
-};
-
-class Light : public SceneNode {
-public:
-	Vector3 position;
-	Vector3 diffuseLight;
-	Vector3 specularLight;
-	Vector3 ambientLight;
-
-	Light(Vector3 position, Vector3 diffuseLight, Vector3 specularLight, Vector3 ambientLight);
-
-	void setUniforms();
-	void renderInMenu();
+	//void renderInMenu();
 
 };
+
+
 
 #endif

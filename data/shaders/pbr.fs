@@ -22,6 +22,10 @@ varying vec4 v_color;
 const float GAMMA = 2.2;
 const float INV_GAMMA = 1.0 / GAMMA;
 
+uniform vec4 albedo;
+uniform vec4 metalness;
+uniform vec4 roughness;
+
 struct PBRMat
 {
 	vec4 albedo;
@@ -144,7 +148,9 @@ void computeVectors(){
 }
 
 void GetMaterialProperties(){
-	
+	vectors.metalness = metalness;
+	vectors.roughness = roughness;
+	vectors.albedo = albedo;
 }
 
 vec3 getPixelColor(){

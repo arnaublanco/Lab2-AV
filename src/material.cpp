@@ -21,6 +21,24 @@ PBRMaterial::~PBRMaterial() {
 
 }
 
+void PBRMaterial::setUniforms(Camera* camera, Matrix44 model) {
+	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	shader->setUniform("u_camera_position", camera->eye);
+	shader->setUniform("u_model", model);
+	shader->setUniform("u_time", Application::instance->time);
+	shader->setUniform("u_output", Application::instance->output);
+
+	shader->setUniform("u_color", color);
+	shader->setUniform("u_exposure", Application::instance->scene_exposure);
+
+	shader->setUniform("u_albedo", albedo);
+	shader->setUniform("u_metalness", metalness);
+	shader->setUniform("u_roughness", roughness);
+
+	if (texture)
+		shader->setUniform("u_texture", texture);
+}
+
 void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 {
 	//upload node uniforms

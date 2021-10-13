@@ -68,11 +68,6 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		node->material = mat;
 		mat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/normal.fs");
 		node_list.push_back(node);
-
-
-
-
-
 	}
 	
 	//hide the cursor

@@ -150,19 +150,21 @@ void computeVectors(){
 }
 
 void GetMaterialProperties(){
-	PBRMat.metalness = metalness;
-	PBRMat.roughness = roughness;
-	PBRMat.albedo = albedo;
+	pbr_mat.metalness = metalness;
+	pbr_mat.roughness = roughness;
+	pbr_mat.albedo = albedo;
 }
 
 vec3 getPixelColor(){
-	return vec3(0,0,0);
+	vec3 NdotL = max(0.0,dot(N,L));
+	vec3 NdotV = max(0.0,dot(N,V));
+	vec3 f_specular = 1/(4*NdotL*NdotV);
+	return f_specular;
 }
 
 void main()
 {
 	computeVectors();
 	getMaterialProperties();
-	//gl_FragColor = vec4(getPixelColor,1.0);
-	gl_FracColor = vec4(1.0);
+	gl_FragColor = vec4(getPixelColor,1.0);
 }

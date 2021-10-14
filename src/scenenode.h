@@ -31,12 +31,12 @@ public:
 
 class Light : public SceneNode {
 public:
-	Vector3 position; 
+	Vector3 position;
 
 	Light();
+	Light(const char* name);
 	~Light();
-
-
+	void setUniforms();
 };
 
 class SkyBoxNode : public SceneNode {

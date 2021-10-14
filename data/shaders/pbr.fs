@@ -7,7 +7,9 @@ uniform samplerCube u_texture_prem_2;
 uniform samplerCube u_texture_prem_3;
 uniform samplerCube u_texture_prem_4;
 
+// Variables coming from the CPU
 uniform vec3 u_camera_pos;
+uniform vec3 light_pos;
 
 uniform mat4 u_model;
 uniform mat4 u_viewprojection;
@@ -148,18 +150,19 @@ void computeVectors(){
 }
 
 void GetMaterialProperties(){
-	vectors.metalness = metalness;
-	vectors.roughness = roughness;
-	vectors.albedo = albedo;
+	PBRMat.metalness = metalness;
+	PBRMat.roughness = roughness;
+	PBRMat.albedo = albedo;
 }
 
 vec3 getPixelColor(){
-	
+	return vec3(0,0,0);
 }
 
 void main()
 {
 	computeVectors();
 	getMaterialProperties();
-	gl_FragColor = vec4(getPixelColor,1.0);
+	//gl_FragColor = vec4(getPixelColor,1.0);
+	gl_FracColor = vec4(1.0);
 }

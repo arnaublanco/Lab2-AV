@@ -70,8 +70,16 @@ Light::Light() {
 
 }
 
+Light::Light(const char* name) {
+	this->name = name;
+}
+
 Light::~Light() {
 
+}
+
+void Light::setUniforms() {
+	material->shader->setUniform("light_pos", model * Vector4(position, 1.0).xyz);
 }
 
 SkyBoxNode::SkyBoxNode() {

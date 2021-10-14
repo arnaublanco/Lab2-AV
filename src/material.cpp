@@ -35,6 +35,8 @@ void PBRMaterial::setUniforms(Camera* camera, Matrix44 model) {
 	shader->setUniform("u_metalness", metalness);
 	shader->setUniform("u_roughness", roughness);
 
+	shader->setUniform("u_camera_position", camera->eye);
+
 	if (texture)
 		shader->setUniform("u_texture", texture);
 }

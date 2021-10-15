@@ -37,8 +37,8 @@ public:
 	Texture* metalness = NULL;
 	Texture* roughness = NULL;
 
-	float roughness_factor;
-	float metalness_factor;
+	float roughness_factor = 0;
+	float metalness_factor = 0;
 
 	PBRMaterial();
 	~PBRMaterial();

@@ -6,9 +6,10 @@ uniform samplerCube u_texture_prem_1;
 uniform samplerCube u_texture_prem_2;
 uniform samplerCube u_texture_prem_3;
 uniform samplerCube u_texture_prem_4;
+uniform samplerCube u_texture;
 
 // Variables coming from the CPU
-uniform vec3 u_camera_pos;
+uniform vec3 u_camera_position;
 uniform vec3 light_pos;
 
 uniform mat4 u_model;
@@ -24,9 +25,9 @@ varying vec4 v_color;
 const float GAMMA = 2.2;
 const float INV_GAMMA = 1.0 / GAMMA;
 
-uniform vec4 albedo;
-uniform vec4 metalness;
-uniform vec4 roughness;
+uniform vec4 u_albedo;
+uniform vec4 u_metalness; //aixo ha de ser un sampler2D
+uniform vec4 u_roughness;
 
 struct PBRMat
 {
@@ -119,7 +120,7 @@ vec3 toneMap(vec3 color)
 {
     return color / (color + vec3(1.0));
 }
-/*
+
 // Uncharted 2 tone map
 // see: http://filmicworlds.com/blog/filmic-tonemapping-operators/
 vec3 toneMapUncharted2Impl(vec3 color)
@@ -140,32 +141,33 @@ vec3 toneMapUncharted(vec3 color)
     vec3 whiteScale = 1.0 / toneMapUncharted2Impl(vec3(W));
     return color * whiteScale;
 }
-*/
+
 void computeVectors(){
 	vectors.L = normalize(light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
 	vectors.V = normalize(u_camera_position - v_world_position);
-	vectors.R = reflect(-L,N);
-	vectors.H = normalize(V + L);
+	vectors.R = reflect(-vectors.L,vectors.N);
+	vectors.H = normalize(vectors.V + vectors.L); 
+	
 }
 
 void GetMaterialProperties(){
-	pbr_mat.metalness = metalness;
-	pbr_mat.roughness = roughness;
-	pbr_mat.albedo = albedo;
+	pbr_mat.metalness = u_metalness; //texture2D(u_metalness, u_uv);
+	pbr_mat.roughness = u_roughness;
+	pbr_mat.albedo = u_albedo;
 }
 
-vec3 getPixelColor(){
-	vec3 NdotL = max(0.0,dot(N,L));
-	vec3 NdotV = max(0.0,dot(N,V));
-	vec3 f_specular = 1/(4*NdotL*NdotV);
+vec3 getPixelColor(vec3 N, vec3 L, vec3 V){
+	float NdotL = max(0.0, dot(vectors.N,vectors.L));
+	float NdotV = max(0.0, dot(vectors.N,vectors.V));
+	float f_specular = 1/(4*NdotL*NdotV);
 	return f_specular;
 }
 
 void main()
 {
-	computeVectors();
-	getMaterialProperties();
-	//gl_FragColor = vec4(getPixelColor,1.0);
-	gl_FragColor = vec4(1.0);
+	computeVectors(vec3 L, vec3 N, vec3 V, vec3 R, vec3 H);
+	GetMaterialProperties(vec4 metalness, vec4 roughness, vec4 albedo);
+	gl_FragColor = vec4(getPixelColor,1.0);
+	//gl_FragColor = vec4(1.0);
 }

@@ -45,7 +45,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	camera->setPerspective(45.f,window_width/(float)window_height,0.1f,10000.f); //set the projection, we want to be perspective
 
 	{
-
+		//LIGHT
 		Light* light = new Light("Light");
 		light->position = Vector3(60, 60, 0);
 
@@ -68,6 +68,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		background->mesh = Mesh::Get("data/meshes/box.ASE.mbin");
 		node_list.push_back(background);
 
+		//BALL
 		PBRMaterial* mat = new PBRMaterial();
 		mat->albedo = Texture::Get("data/models/ball/albedo.png");
 		mat->metalness = Texture::Get("data/models/ball/metalness.png");

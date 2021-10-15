@@ -42,7 +42,7 @@ struct Vectors{
 	vec3 R;
 	vec3 H;
 }vectors;
-
+/*
 // degamma
 vec3 gamma_to_linear(vec3 color)
 {
@@ -104,7 +104,7 @@ vec3 perturbNormal( vec3 N, vec3 V, vec2 texcoord, vec3 normal_pixel ){
 	mat3 TBN = cotangent_frame(N, V, texcoord);
 	return normalize(TBN * normal_pixel);
 }
-
+*/
 vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 {
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
@@ -119,7 +119,7 @@ vec3 toneMap(vec3 color)
 {
     return color / (color + vec3(1.0));
 }
-
+/*
 // Uncharted 2 tone map
 // see: http://filmicworlds.com/blog/filmic-tonemapping-operators/
 vec3 toneMapUncharted2Impl(vec3 color)
@@ -140,7 +140,7 @@ vec3 toneMapUncharted(vec3 color)
     vec3 whiteScale = 1.0 / toneMapUncharted2Impl(vec3(W));
     return color * whiteScale;
 }
-
+*/
 void computeVectors(){
 	vectors.L = normalize(light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
@@ -166,5 +166,6 @@ void main()
 {
 	computeVectors();
 	getMaterialProperties();
-	gl_FragColor = vec4(getPixelColor,1.0);
+	//gl_FragColor = vec4(getPixelColor,1.0);
+	gl_FragColor = vec4(1.0);
 }

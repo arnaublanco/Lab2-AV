@@ -6,7 +6,6 @@
 StandardMaterial::StandardMaterial()
 {
 	color = vec4(1.f, 1.f, 1.f, 1.f);
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/flat.fs");
 }
 
 StandardMaterial::~StandardMaterial()
@@ -83,7 +82,6 @@ void StandardMaterial::renderInMenu()
 WireframeMaterial::WireframeMaterial()
 {
 	color = vec4(1.f, 1.f, 1.f, 1.f);
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/flat.fs");
 }
 
 WireframeMaterial::~WireframeMaterial()

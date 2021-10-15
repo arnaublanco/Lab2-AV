@@ -45,6 +45,16 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	camera->setPerspective(45.f,window_width/(float)window_height,0.1f,10000.f); //set the projection, we want to be perspective
 
 	{
+
+		Light* light = new Light("Light");
+		light->position = Vector3(60, 60, 0);
+
+		StandardMaterial* lightMat = new StandardMaterial();
+		Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/pbr.fs");
+		lightMat->shader = shader;
+		light->material = lightMat;
+		node_list.push_back(light);
+
 		//BACKGROUND
 		SkyBoxNode* background = new SkyBoxNode("Background");
 		StandardMaterial* matBG = new StandardMaterial();
@@ -59,14 +69,14 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		node_list.push_back(background);
 
 		PBRMaterial* mat = new PBRMaterial();
-		mat->albedo = Texture::Get("data/models/balls/albedo.png");
-		mat->metalness = Texture::Get("data/models/balls/metalness.png");
-		mat->roughness = Texture::Get("data/models/balls/roughness.png");
+		mat->albedo = Texture::Get("data/models/ball/albedo.png");
+		mat->metalness = Texture::Get("data/models/ball/metalness.png");
+		mat->roughness = Texture::Get("data/models/ball/roughness.png");
 
 		SceneNode* node = new SceneNode("Ball 1");
 		node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
 		node->material = mat;
-		mat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/normal.fs");
+		mat->shader = shader;
 		node_list.push_back(node);
 	}
 	
@@ -91,10 +101,23 @@ void Application::render(void)
 	glDisable(GL_CULL_FACE);
 
 	for (size_t i = 0; i < node_list.size(); i++) {
-		node_list[i]->render(camera);
+		if (node_list[i]->name == "Light") {
+			Light* light = (Light*)node_list[i]; // Downcast of Light
+			light->material->shader->enable();
+			light->setUniforms();
+			light->material->shader->disable();
+		}
+		else {
+			node_list[i]->material->shader->enable();
+			node_list[i]->render(camera);
+			node_list[i]->material->shader->disable();
+		}
 
-		if(render_wireframe)
+		if (render_wireframe) {
+			node_list[i]->material->shader->enable();
 			node_list[i]->renderWireframe(camera);
+			node_list[i]->material->shader->disable();
+		}
 	}
 
 	//Draw the floor grid

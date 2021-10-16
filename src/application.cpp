@@ -78,7 +78,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
 		node->material = mat;
 		mat->shader = shader;
-		mat->color = vec4(0.5f, 0.5f, 0.5f, 0.1f);
+		mat->color = vec4(1.0, 0.0, 0.0, 0.8f);
 		node_list.push_back(node);
 	}
 	

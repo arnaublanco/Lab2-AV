@@ -32,6 +32,8 @@ uniform sampler2D u_roughness;
 uniform float u_roughness_factor;
 uniform float u_metalness_factor;
 
+uniform vec4 u_color;
+
 //uniform float f0;
 
 struct PBRMat
@@ -71,7 +73,7 @@ float computeDistribution(){
 	return D;
 }
 vec3 computeFresnel(){
-	vec3 f0 = mix(v_color.xyz, vec3(0.04), u_metalness_factor);
+	vec3 f0 = mix(u_color.xyz, vec3(0.04), u_metalness_factor);
 	vec3 F = f0 + (1 - f0)*(pow(1-dot(vectors.L, vectors.N), 5));
 	return F;
 }
@@ -89,13 +91,14 @@ vec3 getPixelColor(){
 	float D = computeDistribution();
 	vec3 F = computeFresnel();
 	vec3 f_specular = F*G*D/(4*NdotL*NdotV);
-	vec3 f_diffuse = mix(vec3(0.0), v_color.xyz, u_metalness_factor)/PI;
+	vec3 f_diffuse = mix(vec3(0.0), u_color.xyz, u_metalness_factor)/PI;
 	vec3 f = f_specular + f_diffuse;
 	return f;
 }
 
 void main()
 {
+	//vec4 color = pbr_mat.albedo;
 	computeVectors();
 	GetMaterialProperties();
 	gl_FragColor = vec4(getPixelColor(),1.0);

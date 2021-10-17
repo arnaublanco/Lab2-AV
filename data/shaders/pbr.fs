@@ -41,6 +41,8 @@ struct PBRMat
 	vec4 albedo;
 	vec4 roughness;
 	vec4 metalness;
+	vec3 f0;
+	vec3 c_diff;
 }pbr_mat;
 
 struct Vectors{
@@ -60,28 +62,37 @@ void computeVectors(){
 	
 }
 float computeGeometry(){
-	
-	float first_term = (2*(dot(vectors.N, vectors.H))*(dot(vectors.N, vectors.V)))/dot(vectors.V,vectors.H);
-	float second_term = (2*(dot(vectors.N, vectors.H))*(dot(vectors.N, vectors.L)))/dot(vectors.V,vectors.H);
+	float NdotH = dot(vectors.N, vectors.H);
+	float NdotV = dot(vectors.N, vectors.V);
+	float NdotL = dot(vectors.N, vectors.L);
+	float VdotH = dot(vectors.V, vectors.H);
+
+	float first_term = 2.0*NdotH*NdotV/NdotH;
+	float second_term = 2.0*NdotH*NdotL/VdotH;
+
 	float G = min(1.0, min(first_term, second_term));
+
 	return G;
 }
 
 float computeDistribution(){
-	float alpha = pow(u_roughness_factor, 2);
-	float D = pow(alpha,2)/(PI*pow(pow(dot(vectors.N, vectors.H),2)*(pow(alpha,2)-1) + 1,2));
+	float alpha = pow(u_roughness_factor, 2.0);
+	float NdotH = dot(vectors.N, vectors.H);
+	float alpha_squared = pow(alpha,2.0);
+	float D = alpha_squared/(PI*pow(pow(NdotH,2.0)*(alpha_squared-1.0) + 1.0,2.0));
 	return D;
 }
 vec3 computeFresnel(){
-	vec3 f0 = mix(u_color.xyz, vec3(0.04), u_metalness_factor);
-	vec3 F = f0 + (1 - f0)*(pow(1-dot(vectors.L, vectors.N), 5));
+	vec3 F = pbr_mat.f0 + (1.0 - pbr_mat.f0)*(pow(1.0-dot(vectors.L, vectors.N), 5.0));
 	return F;
 }
 
-void GetMaterialProperties(){
+void GetMaterialProperties(vec4 color){
 	pbr_mat.metalness = texture2D(u_metalness, v_uv);
 	pbr_mat.roughness = texture2D(u_roughness, v_uv);
 	pbr_mat.albedo = texture2D(u_albedo, v_uv);
+	pbr_mat.f0 = mix(u_color.xyz, vec3(0.04), u_metalness_factor);
+	pbr_mat.c_diff = mix(vec3(0.0), u_color.xyz, u_metalness_factor);
 }
 
 vec3 getPixelColor(){
@@ -90,17 +101,16 @@ vec3 getPixelColor(){
 	float G = computeGeometry();
 	float D = computeDistribution();
 	vec3 F = computeFresnel();
-	vec3 f_specular = F*G*D/(4*NdotL*NdotV);
-	vec3 f_diffuse = mix(vec3(0.0), u_color.xyz, u_metalness_factor)/PI;
+	vec3 f_specular = F*G*D/(4.0*NdotL*NdotV);
+	vec3 f_diffuse = pbr_mat.c_diff/PI;
 	vec3 f = f_specular + f_diffuse;
 	return f;
 }
 
 void main()
 {
-	//vec4 color = pbr_mat.albedo;
+	vec4 color = pbr_mat.albedo;
 	computeVectors();
-	GetMaterialProperties();
+	GetMaterialProperties(color);
 	gl_FragColor = vec4(getPixelColor(),1.0);
-	//gl_FragColor = vec4(1.0);
 }

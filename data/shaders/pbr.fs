@@ -57,7 +57,7 @@ void computeVectors(){
 	vectors.L = normalize(light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
 	vectors.V = normalize(u_camera_position - v_world_position);
-	vectors.R = reflect(-vectors.L,vectors.N);
+	vectors.R = reflect(vectors.L,vectors.N);
 	vectors.H = normalize(vectors.V + vectors.L); 
 	
 }
@@ -96,15 +96,23 @@ void GetMaterialProperties(vec4 color){
 }
 
 vec3 getPixelColor(){
-	float NdotL = max(0.0, dot(vectors.N,vectors.L));
-	float NdotV = max(0.0, dot(vectors.N,vectors.V));
+	float NdotL = dot(vectors.N,vectors.L);
+	float NdotV = dot(vectors.N,vectors.V);
 	float G = computeGeometry();
 	float D = computeDistribution();
 	vec3 F = computeFresnel();
 	vec3 f_specular = F*G*D/(4.0*NdotL*NdotV);
 	vec3 f_diffuse = pbr_mat.c_diff/PI;
-	vec3 f = f_specular + f_diffuse;
+	vec3 f = f_diffuse + f_specular;
 	return f;
+}
+
+vec3 gamma_to_linear(vec3 color){
+	return pow(color,vec3(GAMMA));
+}
+
+vec3 linear_to_gamma(vec3 color){
+	return pow(color,vec3(INV_GAMMA));
 }
 
 void main()

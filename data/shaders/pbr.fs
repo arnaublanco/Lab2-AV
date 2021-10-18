@@ -62,10 +62,10 @@ void computeVectors(){
 	
 }
 float computeGeometry(){
-	float NdotH = dot(vectors.N, vectors.H);
-	float NdotV = dot(vectors.N, vectors.V);
-	float NdotL = dot(vectors.N, vectors.L);
-	float VdotH = dot(vectors.V, vectors.H);
+	float NdotH = max(0.0,dot(vectors.N, vectors.H));
+	float NdotV = max(0.0,dot(vectors.N, vectors.V));
+	float NdotL = max(0.0,dot(vectors.N, vectors.L));
+	float VdotH = max(0.0,dot(vectors.V, vectors.H));
 
 	float first_term = 2.0*NdotH*NdotV/NdotH;
 	float second_term = 2.0*NdotH*NdotL/VdotH;
@@ -77,13 +77,13 @@ float computeGeometry(){
 
 float computeDistribution(){
 	float alpha = pow(u_roughness_factor, 2.0);
-	float NdotH = dot(vectors.N, vectors.H);
+	float NdotH = max(0.0,dot(vectors.N, vectors.H));
 	float alpha_squared = pow(alpha,2.0);
 	float D = alpha_squared/(PI*pow(pow(NdotH,2.0)*(alpha_squared-1.0) + 1.0,2.0));
 	return D;
 }
 vec3 computeFresnel(){
-	vec3 F = pbr_mat.f0 + (1.0 - pbr_mat.f0)*(pow(1.0-dot(vectors.L, vectors.N), 5.0));
+	vec3 F = pbr_mat.f0 + (1.0 - pbr_mat.f0)*(pow(1.0-max(0.0,dot(vectors.L, vectors.N)), 5.0));
 	return F;
 }
 
@@ -96,8 +96,8 @@ void GetMaterialProperties(vec4 color){
 }
 
 vec3 getPixelColor(){
-	float NdotL = dot(vectors.N,vectors.L);
-	float NdotV = dot(vectors.N,vectors.V);
+	float NdotL = max(0.0,dot(vectors.N,vectors.L));
+	float NdotV = max(0.0,dot(vectors.N,vectors.V));
 	float G = computeGeometry();
 	float D = computeDistribution();
 	vec3 F = computeFresnel();

@@ -80,6 +80,12 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		mat->shader = shader;
 		mat->color = vec4(1.0, 0.0, 0.0, 0.8f);
 		node_list.push_back(node);
+
+		// Environment light
+		HDRE* hdre = HDRE::Get("data/environments/studio.hdre");
+		Texture* texture = new Texture();
+		unsigned int LEVEL = 0;
+		texture->cubemapFromHDRE(hdre, LEVEL);
 	}
 	
 	//hide the cursor

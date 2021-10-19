@@ -61,20 +61,26 @@ void computeVectors(){
 }
 float computeGeometry(){
 	
-	float first_term = (2*(dot(vectors.N, vectors.H))*(dot(vectors.N, vectors.V)))/dot(vectors.V,vectors.H);
-	float second_term = (2*(dot(vectors.N, vectors.H))*(dot(vectors.N, vectors.L)))/dot(vectors.V,vectors.H);
+	float NdotH = max(0.0,dot(vectors.N, vectors.H));
+	float NdotV = max(0.0,dot(vectors.N, vectors.V));
+	float VdotH = clamp(dot(vectors.V,vectors.H),0.0001,1.0);
+	float NdotL = max(0.0,dot(vectors.N, vectors.L));
+	float first_term = (2.0*NdotH*NdotV)/VdotH;
+	float second_term = (2.0*NdotH*NdotL)/VdotH;
 	float G = min(1.0, min(first_term, second_term));
 	return G;
 }
 
 float computeDistribution(){
-	float alpha = pow(pbr_mat.roughness, 2);
-	float D = pow(alpha,2)/(PI*pow(pow(dot(vectors.N, vectors.H),2)*(pow(alpha,2)-1) + 1,2));
+	float alpha = pow(pbr_mat.roughness, 2.0);
+	float NdotH = max(0.0,dot(vectors.N, vectors.H));
+	float D = pow(alpha,2.0)/(PI*pow(pow(NdotH,2.0)*(pow(alpha,2.0)-1.0) + 1.0,2.0));
 	return D;
 }
 vec3 computeFresnel(){
 	vec3 f0 = mix(u_color.xyz, vec3(0.04), pbr_mat.metalness);
-	vec3 F = f0 + (1 - f0)*(pow(1-dot(vectors.L, vectors.N), 5));
+	float NdotL = max(0.0,dot(vectors.L, vectors.N));
+	vec3 F = f0 + (1 - f0)*(pow(1-NdotL, 5.0));
 	return F;
 }
 
@@ -90,7 +96,7 @@ vec3 getPixelColor(){
 	float G = computeGeometry();
 	float D = computeDistribution();
 	vec3 F = computeFresnel();
-	vec3 f_specular = F*G*D; ///(4*NdotL*NdotV);
+	vec3 f_specular = F*G*D/(4.0*NdotL*NdotV);
 	vec3 f_diffuse = mix(vec3(0.0), u_color.xyz, pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
 	return f;

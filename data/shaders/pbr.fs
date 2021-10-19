@@ -39,8 +39,8 @@ uniform vec4 u_color;
 struct PBRMat
 {
 	vec4 albedo;
-	vec4 roughness;
-	vec4 metalness;
+	float roughness;
+	float metalness;
 }pbr_mat;
 
 struct Vectors{
@@ -68,30 +68,30 @@ float computeGeometry(){
 }
 
 float computeDistribution(){
-	float alpha = pow(u_roughness_factor, 2);
+	float alpha = pow(pbr_mat.roughness, 2);
 	float D = pow(alpha,2)/(PI*pow(pow(dot(vectors.N, vectors.H),2)*(pow(alpha,2)-1) + 1,2));
 	return D;
 }
 vec3 computeFresnel(){
-	vec3 f0 = mix(u_color.xyz, vec3(0.04), u_metalness_factor);
+	vec3 f0 = mix(u_color.xyz, vec3(0.04), pbr_mat.metalness);
 	vec3 F = f0 + (1 - f0)*(pow(1-dot(vectors.L, vectors.N), 5));
 	return F;
 }
 
 void GetMaterialProperties(){
-	pbr_mat.metalness = texture2D(u_metalness, v_uv);
-	pbr_mat.roughness = texture2D(u_roughness, v_uv);
+	pbr_mat.metalness = texture2D(u_metalness, v_uv).x*u_metalness_factor;
+	pbr_mat.roughness = texture2D(u_roughness, v_uv).x*u_roughness_factor;
 	pbr_mat.albedo = texture2D(u_albedo, v_uv);
 }
 
 vec3 getPixelColor(){
-	float NdotL = max(0.0, dot(vectors.N,vectors.L));
-	float NdotV = max(0.0, dot(vectors.N,vectors.V));
+	float NdotL = clamp(dot(vectors.N,vectors.L), 0.0001, 1.0);
+	float NdotV = clamp(dot(vectors.N,vectors.V), 0.0001, 1.0);
 	float G = computeGeometry();
 	float D = computeDistribution();
 	vec3 F = computeFresnel();
-	vec3 f_specular = F*G*D/(4*NdotL*NdotV);
-	vec3 f_diffuse = mix(vec3(0.0), u_color.xyz, u_metalness_factor)/PI;
+	vec3 f_specular = F*G*D; ///(4*NdotL*NdotV);
+	vec3 f_diffuse = mix(vec3(0.0), u_color.xyz, pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
 	return f;
 }

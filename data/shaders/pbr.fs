@@ -55,7 +55,7 @@ void computeVectors(){
 	vectors.L = normalize(light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
 	vectors.V = normalize(u_camera_position - v_world_position);
-	vectors.R = reflect(-vectors.L,vectors.N);
+	vectors.R = normalize(reflect(-vectors.L,vectors.N));
 	vectors.H = normalize(vectors.V + vectors.L); 
 	
 }
@@ -63,10 +63,10 @@ float computeGeometry(){
 	
 	float NdotH = max(0.0,dot(vectors.N, vectors.H));
 	float NdotV = max(0.0,dot(vectors.N, vectors.V));
-	float VdotH = clamp(dot(vectors.V,vectors.H),0.0001,1.0);
+	float VdotH = max(0.0,dot(vectors.V,vectors.H));
 	float NdotL = max(0.0,dot(vectors.N, vectors.L));
-	float first_term = (2.0*NdotH*NdotV)/VdotH;
-	float second_term = (2.0*NdotH*NdotL)/VdotH;
+	float first_term = (2.0*NdotH*NdotV)/(VdotH + pow(10.0,-6.0));
+	float second_term = (2.0*NdotH*NdotL)/(VdotH + pow(10.0,-6.0));
 	float G = min(1.0, min(first_term, second_term));
 	return G;
 }
@@ -80,7 +80,7 @@ float computeDistribution(){
 vec3 computeFresnel(){
 	vec3 f0 = mix(u_color.xyz, vec3(0.04), pbr_mat.metalness);
 	float NdotL = max(0.0,dot(vectors.L, vectors.N));
-	vec3 F = f0 + (1 - f0)*(pow(1-NdotL, 5.0));
+	vec3 F = f0 + (1.0 - f0)*pow(1.0-NdotL, 5.0);
 	return F;
 }
 
@@ -91,12 +91,12 @@ void GetMaterialProperties(){
 }
 
 vec3 getPixelColor(){
-	float NdotL = clamp(dot(vectors.N,vectors.L), 0.0001, 1.0);
-	float NdotV = clamp(dot(vectors.N,vectors.V), 0.0001, 1.0);
+	float NdotL = max(0.0,dot(vectors.N,vectors.L));
+	float NdotV = max(0.0,dot(vectors.N,vectors.V));
 	float G = computeGeometry();
 	float D = computeDistribution();
 	vec3 F = computeFresnel();
-	vec3 f_specular = F*G*D/(4.0*NdotL*NdotV);
+	vec3 f_specular = (F*G*D)/(4.0*NdotL*NdotV + pow(10.0,-6.0));
 	vec3 f_diffuse = mix(vec3(0.0), u_color.xyz, pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
 	return f;

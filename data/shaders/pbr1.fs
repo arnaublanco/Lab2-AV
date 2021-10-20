@@ -33,18 +33,15 @@ uniform sampler2D u_roughness;
 uniform float u_roughness_factor;
 uniform float u_metalness_factor;
 
-uniform vec3 u_LUT;
-
 uniform vec4 u_color;
 
-uniform vec3 f0;
+//uniform float f0;
 
 struct PBRMat
 {
 	vec4 albedo;
 	float roughness;
 	float metalness;
-	vec3 f0;
 }pbr_mat;
 
 struct Vectors{
@@ -54,27 +51,6 @@ struct Vectors{
 	vec3 R;
 	vec3 H;
 }vectors;
-
-vec3 getReflectionColor(vec3 r, float roughness)
-{
-	float lod = roughness * 5.0;
-
-	vec4 color;
-
-	if(lod < 1.0) color = mix( textureCube(u_texture, r), textureCube(u_texture_prem_0, r), lod );
-	else if(lod < 2.0) color = mix( textureCube(u_texture_prem_0, r), textureCube(u_texture_prem_1, r), lod - 1.0 );
-	else if(lod < 3.0) color = mix( textureCube(u_texture_prem_1, r), textureCube(u_texture_prem_2, r), lod - 2.0 );
-	else if(lod < 4.0) color = mix( textureCube(u_texture_prem_2, r), textureCube(u_texture_prem_3, r), lod - 3.0 );
-	else if(lod < 5.0) color = mix( textureCube(u_texture_prem_3, r), textureCube(u_texture_prem_4, r), lod - 4.0 );
-	else color = textureCube(u_texture_prem_4, r);
-
-	return color.rgb;
-}
-
-vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
-{
-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-}
 
 void computeVectors(){
 	vectors.L = normalize(light_pos - v_world_position);
@@ -91,6 +67,11 @@ float computeGeometry(){
 	float VdotH = max(0.0,dot(vectors.V,vectors.H));
 	float NdotL = max(0.0,dot(vectors.N, vectors.L));
 
+	//float k = pow((pbr_mat.roughness + 1.0),2)/8;
+	//float first_term = NdotV/(NdotV*(1-k) + k);
+	//float second_term = NdotL/(NdotL*(1-k) + k);
+	//float G = first_term*second_term;
+
 	float first_term = (2.0*NdotH*NdotV)/(VdotH + epsilon);
 	float second_term = (2.0*NdotH*NdotL)/(VdotH + epsilon);
 	float G = min(1.0,min(first_term, second_term));
@@ -105,9 +86,9 @@ float computeDistribution(){
 	return D;
 }
 vec3 computeFresnel(){
-	pbr_mat.f0 = mix(u_color.xyz, vec3(0.04), pbr_mat.metalness);
+	vec3 f0 = mix(u_color.xyz, vec3(0.04), pbr_mat.metalness);
 	float NdotL = max(0.0,dot(vectors.L, vectors.N));
-	vec3 F = pbr_mat.f0 + (1.0 - pbr_mat.f0)*pow(1.0-NdotL, 5.0);
+	vec3 F = f0 + (1.0 - f0)*pow(1.0-NdotL, 5.0);
 	return F;
 }
 
@@ -118,9 +99,6 @@ void GetMaterialProperties(){
 }
 
 vec3 getPixelColor(){
-	vec3 specularSample = getReflectionColor(v_world_position,pbr_mat.roughness);
-	float SpecularBRDF = u_LUT.x + u_LUT.y;
-	vec3 SpecularIBL = specularSample * SpecularBRDF;
 	float NdotL = max(0.0,dot(vectors.N,vectors.L));
 	float NdotV = max(0.0,dot(vectors.N,vectors.V));
 	float G = computeGeometry();
@@ -129,12 +107,12 @@ vec3 getPixelColor(){
 	vec3 f_specular = (F*G*D)/(4.0*NdotL*NdotV + epsilon);
 	vec3 f_diffuse = mix(vec3(0.0), u_color.xyz, pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
-	return SpecularIBL;
+	return f;
 }
 
 void main()
 {
-	vec4 color = pbr_mat.albedo;
+	//vec4 color = pbr_mat.albedo;
 	computeVectors();
 	GetMaterialProperties();
 	gl_FragColor = vec4(getPixelColor(),1.0);

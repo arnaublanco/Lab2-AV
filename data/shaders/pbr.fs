@@ -1,5 +1,6 @@
 #define PI 3.14159265359
 #define RECIPROCAL_PI 0.3183098861837697
+#define epsilon 0.1
 
 uniform samplerCube u_texture_prem_0;
 uniform samplerCube u_texture_prem_1;
@@ -65,9 +66,16 @@ float computeGeometry(){
 	float NdotV = max(0.0,dot(vectors.N, vectors.V));
 	float VdotH = max(0.0,dot(vectors.V,vectors.H));
 	float NdotL = max(0.0,dot(vectors.N, vectors.L));
-	float first_term = (2.0*NdotH*NdotV)/(VdotH + pow(10.0,-6.0));
-	float second_term = (2.0*NdotH*NdotL)/(VdotH + pow(10.0,-6.0));
-	float G = min(1.0, min(first_term, second_term));
+
+	//float k = pow((pbr_mat.roughness + 1.0),2)/8;
+	//float first_term = NdotV/(NdotV*(1-k) + k);
+	//float second_term = NdotL/(NdotL*(1-k) + k);
+	//float G = first_term*second_term;
+
+	float first_term = (2.0*NdotH*NdotV)/(VdotH + epsilon);
+	float second_term = (2.0*NdotH*NdotL)/(VdotH + epsilon);
+	float G = min(1.0,min(first_term, second_term));
+
 	return G;
 }
 
@@ -96,7 +104,7 @@ vec3 getPixelColor(){
 	float G = computeGeometry();
 	float D = computeDistribution();
 	vec3 F = computeFresnel();
-	vec3 f_specular = (F*G*D)/(4.0*NdotL*NdotV + pow(10.0,-6.0));
+	vec3 f_specular = (F*G*D)/(4.0*NdotL*NdotV + epsilon);
 	vec3 f_diffuse = mix(vec3(0.0), u_color.xyz, pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
 	return f;

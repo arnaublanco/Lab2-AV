@@ -73,6 +73,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		mat->albedo = Texture::Get("data/models/ball/albedo.png");
 		mat->metalness = Texture::Get("data/models/ball/metalness.png");
 		mat->roughness = Texture::Get("data/models/ball/roughness.png");
+		mat->LUT = Texture::Get("data/brdfLUT.png");
 
 		SceneNode* node = new SceneNode("Ball 1");
 		node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
@@ -86,6 +87,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		Texture* texture = new Texture();
 		unsigned int LEVEL = 0;
 		texture->cubemapFromHDRE(hdre, LEVEL);
+
 	}
 	
 	//hide the cursor

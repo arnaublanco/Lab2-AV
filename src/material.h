@@ -37,6 +37,8 @@ public:
 	Texture* metalness = NULL;
 	Texture* roughness = NULL;
 
+	Texture* LUT = NULL;
+
 	float roughness_factor = 0.5;
 	float metalness_factor = 0.5;
 

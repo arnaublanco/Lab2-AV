@@ -1,6 +1,6 @@
 #define PI 3.14159265359
 #define RECIPROCAL_PI 0.3183098861837697
-#define epsilon 0.001
+#define epsilon 0.01
 
 uniform samplerCube u_texture_prem_0;
 uniform samplerCube u_texture_prem_1;
@@ -123,7 +123,8 @@ vec3 getPixelColor(){
 	vec3 brdf2D = texture2D(u_LUT, v_uv).xyz;
 
 	vec3 specularSample = getReflectionColor(v_world_position,pbr_mat.roughness);
-	float SpecularBRDF = brdf2D.x + brdf2D.y;
+	float cosTheta = max(0.0,dot(N,L));
+	vec3 SpecularBRDF = FresnelSchlickRoughness(cosTheta, pbr_mat.F0, pbr_mat.roughness)*brdf2D.x + brdf2D.y;
 	vec3 SpecularIBL = specularSample * SpecularBRDF;
 
 	float NdotL = max(0.0,dot(vectors.N,vectors.L));

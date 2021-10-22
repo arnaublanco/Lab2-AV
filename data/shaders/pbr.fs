@@ -123,9 +123,15 @@ vec3 getPixelColor(){
 	vec3 brdf2D = texture2D(u_LUT, v_uv).xyz;
 
 	vec3 specularSample = getReflectionColor(v_world_position,pbr_mat.roughness);
-	float cosTheta = max(0.0,dot(N,L));
-	vec3 SpecularBRDF = FresnelSchlickRoughness(cosTheta, pbr_mat.F0, pbr_mat.roughness)*brdf2D.x + brdf2D.y;
+	float cosTheta = max(0.0,dot(vectors.N,vectors.L));
+	vec3 SpecularBRDF = FresnelSchlickRoughness(cosTheta, pbr_mat.f0, pbr_mat.roughness)*brdf2D.x + brdf2D.y;
 	vec3 SpecularIBL = specularSample * SpecularBRDF;
+
+	vec3 diffuseSample = vec3(1.0);
+	vec3 diffuseColor = vec3(1.0);
+	vec3 DiffuseIBL = diffuseSample * diffuseColor;
+
+	vec3 IBL = SpecularIBL + DiffuseIBL;
 
 	float NdotL = max(0.0,dot(vectors.N,vectors.L));
 	float NdotV = max(0.0,dot(vectors.N,vectors.V));
@@ -138,7 +144,7 @@ vec3 getPixelColor(){
 	vec3 f_diffuse = mix(u_color.xyz, vec3(0.0), pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
 
-	return f;
+	return IBL + f;
 }
 
 void main()

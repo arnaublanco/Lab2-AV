@@ -1,6 +1,6 @@
 #define PI 3.14159265359
 #define RECIPROCAL_PI 0.3183098861837697
-#define epsilon 0.1
+#define epsilon 0.001
 
 uniform samplerCube u_texture_prem_0;
 uniform samplerCube u_texture_prem_1;
@@ -33,7 +33,7 @@ uniform sampler2D u_roughness;
 uniform float u_roughness_factor;
 uniform float u_metalness_factor;
 
-uniform vec3 u_LUT;
+uniform sampler2D u_LUT;
 
 uniform vec4 u_color;
 
@@ -105,7 +105,7 @@ float computeDistribution(){
 	return D;
 }
 vec3 computeFresnel(){
-	pbr_mat.f0 = mix(u_color.xyz, vec3(0.04), pbr_mat.metalness);
+	pbr_mat.f0 = mix(vec3(0.04), u_color.xyz, pbr_mat.metalness);
 	float NdotL = max(0.0,dot(vectors.L, vectors.N));
 	vec3 F = pbr_mat.f0 + (1.0 - pbr_mat.f0)*pow(1.0-NdotL, 5.0);
 	return F;
@@ -118,18 +118,26 @@ void GetMaterialProperties(){
 }
 
 vec3 getPixelColor(){
+
+	vec2 LUT_coord = vec2(max(0.0,dot(vectors.N,vectors.V)),pbr_mat.roughness);
+	vec3 brdf2D = texture2D(u_LUT, v_uv).xyz;
+
 	vec3 specularSample = getReflectionColor(v_world_position,pbr_mat.roughness);
-	float SpecularBRDF = u_LUT.x + u_LUT.y;
+	float SpecularBRDF = brdf2D.x + brdf2D.y;
 	vec3 SpecularIBL = specularSample * SpecularBRDF;
+
 	float NdotL = max(0.0,dot(vectors.N,vectors.L));
 	float NdotV = max(0.0,dot(vectors.N,vectors.V));
+
 	float G = computeGeometry();
 	float D = computeDistribution();
 	vec3 F = computeFresnel();
+
 	vec3 f_specular = (F*G*D)/(4.0*NdotL*NdotV + epsilon);
-	vec3 f_diffuse = mix(vec3(0.0), u_color.xyz, pbr_mat.metalness)/PI;
+	vec3 f_diffuse = mix(u_color.xyz, vec3(0.0), pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
-	return SpecularIBL;
+
+	return f;
 }
 
 void main()
@@ -137,6 +145,6 @@ void main()
 	vec4 color = pbr_mat.albedo;
 	computeVectors();
 	GetMaterialProperties();
-	gl_FragColor = vec4(getPixelColor(),1.0);
-	//gl_FragColor = vec4(1.0);
+	float NdotL = max(0.0,dot(vectors.N,vectors.L));
+	gl_FragColor = vec4(NdotL*getPixelColor(),1.0);
 }

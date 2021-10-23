@@ -45,6 +45,7 @@ public:
 	PBRMaterial();
 	~PBRMaterial();
 	void setUniforms(Camera* camera, Matrix44 model);
+	void renderInMenu();
 };
 
 class WireframeMaterial : public StandardMaterial {

@@ -43,6 +43,12 @@ void PBRMaterial::setUniforms(Camera* camera, Matrix44 model) {
 
 }
 
+void PBRMaterial::renderInMenu() {
+	ImGui::ColorEdit3("Color", (float*)&color); // Edit 3 floats representing a color
+	ImGui::SliderFloat("Roughness", &roughness_factor, 0.0f, 1.0f);
+	ImGui::SliderFloat("Metalness", &metalness_factor, 0.0f, 1.0f);
+}
+
 void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 {
 	//upload node uniforms

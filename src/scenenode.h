@@ -32,11 +32,13 @@ public:
 class Light : public SceneNode {
 public:
 	Vector3 position;
+	Vector4 color;
+	float light_intensity = 1.0;
 
-	Light();
 	Light(const char* name);
 	~Light();
 	void setUniforms();
+	void renderInMenu();
 };
 
 class SkyBoxNode : public SceneNode {
@@ -46,7 +48,7 @@ public:
 	~SkyBoxNode();
 
 	void render(Camera* camera);
-	//void renderInMenu();
+	void renderInMenu();
 
 };
 

@@ -1,6 +1,6 @@
 #define PI 3.14159265359
 #define RECIPROCAL_PI 0.3183098861837697
-#define epsilon 0.01
+#define epsilon 1e-6
 
 uniform samplerCube u_texture_prem_0;
 uniform samplerCube u_texture_prem_1;
@@ -11,7 +11,7 @@ uniform samplerCube u_texture;
 
 // Variables coming from the CPU
 uniform vec3 u_camera_position;
-uniform vec3 light_pos;
+uniform vec3 u_light_pos;
 
 uniform mat4 u_model;
 uniform mat4 u_viewprojection;
@@ -36,6 +36,8 @@ uniform float u_metalness_factor;
 uniform sampler2D u_LUT;
 
 uniform vec4 u_color;
+
+uniform float u_light_intensity;
 
 uniform vec3 f0;
 
@@ -77,7 +79,7 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 }
 
 void computeVectors(){
-	vectors.L = normalize(light_pos - v_world_position);
+	vectors.L = normalize(u_light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
 	vectors.V = normalize(u_camera_position - v_world_position);
 	vectors.R = normalize(reflect(-vectors.L,vectors.N));
@@ -144,7 +146,7 @@ vec3 getPixelColor(){
 	vec3 f_diffuse = mix(u_color.xyz, vec3(0.0), pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
 
-	return IBL + f;
+	return f;
 }
 
 void main()
@@ -153,5 +155,5 @@ void main()
 	computeVectors();
 	GetMaterialProperties();
 	float NdotL = max(0.0,dot(vectors.N,vectors.L));
-	gl_FragColor = vec4(NdotL*getPixelColor(),1.0);
+	gl_FragColor = vec4(u_light_intensity*NdotL*getPixelColor(),1.0);
 }

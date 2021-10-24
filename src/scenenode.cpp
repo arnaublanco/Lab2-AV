@@ -71,11 +71,12 @@ void SceneNode::renderInMenu()
 
 		if (changed) {
 			mesh = Mesh::Get(meshes[mesh_selected]);
-			PBRMaterial* mat = (PBRMaterial*)material; //downcasting
-			mat->albedo = Texture::Get(albedos[mesh_selected]);
-			mat->metalness = Texture::Get(metals[mesh_selected]);
-			mat->roughness = Texture::Get(roughs[mesh_selected]);
-
+			if (material) {
+				PBRMaterial* mat = (PBRMaterial*)material; //downcasting
+				mat->albedo = Texture::Get(albedos[mesh_selected]);
+				mat->metalness = Texture::Get(metals[mesh_selected]);
+				mat->roughness = Texture::Get(roughs[mesh_selected]);
+			}
 		}
 		ImGui::TreePop();
 
@@ -84,7 +85,7 @@ void SceneNode::renderInMenu()
 
 Light::Light(const char* name) {
 	this->name = name;
-	this->color = vec4(1.f, 1.f, 1.f, 1.f);
+	this->color = vec4(0.f, 0.f, 0.f, 0.f);
 }
 
 Light::~Light() {

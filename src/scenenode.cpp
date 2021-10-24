@@ -7,7 +7,11 @@ unsigned int SceneNode::lastNameId = 0;
 unsigned int mesh_selected = 0;
 unsigned int background_selected = 0;
 const char* backgrounds[3] = { "data/environments/snow", "data/environments/city", "data/environments/dragonvale" };
-const char* meshes[2] = { "data/meshes/sphere.obj.mbin" };
+const char* meshes[2] = { "data/meshes/sphere.obj.mbin", "data/models/helmet/helmet.obj.mbin"};
+const char* albedos[2] = { "data/models/ball/albedo.png", "data/models/helmet/albedo.png" };
+const char* metals[2] = { "data/models/ball/metalness.png","data/models/helmet/metalness.png" };
+const char* roughs[2] = { "data/models/ball/roughness.png","data/models/helmet/roughness.png" };
+
 
 SceneNode::SceneNode()
 {
@@ -63,9 +67,18 @@ void SceneNode::renderInMenu()
 	if (mesh && ImGui::TreeNode("Geometry"))
 	{
 		bool changed = false;
-		changed |= ImGui::Combo("Mesh", (int*)&mesh_selected, "SPHERE\0HELMET\0");
+		changed |= ImGui::Combo("Mesh/Model", (int*)&mesh_selected, "SPHERE\0HELMET\0");
 
+		if (changed) {
+			mesh = Mesh::Get(meshes[mesh_selected]);
+			PBRMaterial* mat = (PBRMaterial*)material; //downcasting
+			mat->albedo = Texture::Get(albedos[mesh_selected]);
+			mat->metalness = Texture::Get(metals[mesh_selected]);
+			mat->roughness = Texture::Get(roughs[mesh_selected]);
+
+		}
 		ImGui::TreePop();
+
 	}
 }
 

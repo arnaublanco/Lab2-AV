@@ -134,7 +134,13 @@ void SkyBoxNode::render(Camera* camera) {
 	if (material) {
 		glDisable(GL_DEPTH_TEST);
 		material->render(mesh, model, camera);
-		// SET UNIFORM OF TEXTURES TO SHADER
+
+		material->shader->setTexture("u_texture_prem_0", HDREs[0], 3);
+		material->shader->setTexture("u_texture_prem_1", HDREs[1], 4);
+		material->shader->setTexture("u_texture_prem_2", HDREs[2], 5);
+		material->shader->setTexture("u_texture_prem_3", HDREs[3], 6);
+		material->shader->setTexture("u_texture_prem_4", HDREs[4], 7);
+
 		glEnable(GL_DEPTH_TEST);
 	}
 

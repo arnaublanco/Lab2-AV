@@ -47,7 +47,7 @@ public:
 	SkyBoxNode(const char* name);
 	~SkyBoxNode();
 
-	Texture* HDREs[5];
+	Texture* HDREs[5] = { NULL, NULL, NULL, NULL, NULL };
 
 	void render(Camera* camera);
 	void renderInMenu();

@@ -84,9 +84,12 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 
 		// Environment light
 		HDRE* hdre = HDRE::Get("data/environments/studio.hdre");
-		Texture* texture = new Texture();
-		unsigned int LEVEL = 0;
-		texture->cubemapFromHDRE(hdre, LEVEL);
+		unsigned int N = 4;
+		for (unsigned int i = 0; i <= N; i++) {
+			Texture* texture = new Texture();
+			texture->cubemapFromHDRE(hdre, i);
+			background->HDREs[i] = texture;
+		}
 
 	}
 	

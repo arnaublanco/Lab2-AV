@@ -95,6 +95,7 @@ Light::~Light() {
 void Light::setUniforms() {
 	material->shader->setUniform("u_light_pos", model * Vector4(position, 1.0).xyz);
 	material->shader->setUniform("u_light_intensity", light_intensity);
+	material->shader->setUniform("u_color", color);
 }
 
 void Light::renderInMenu() {
@@ -133,8 +134,10 @@ void SkyBoxNode::render(Camera* camera) {
 	if (material) {
 		glDisable(GL_DEPTH_TEST);
 		material->render(mesh, model, camera);
+		// SET UNIFORM OF TEXTURES TO SHADER
 		glEnable(GL_DEPTH_TEST);
 	}
+
 }
 
 void SkyBoxNode::renderInMenu() {

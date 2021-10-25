@@ -93,8 +93,8 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 void computeVectors(){
 	vectors.L = normalize(u_light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
-	vectors.V = normalize(u_camera_position - v_world_position);
-	vectors.R = normalize(reflect(-vectors.L,vectors.N));
+	vectors.V = normalize(v_world_position - u_camera_position);
+	vectors.R = normalize(reflect(vectors.V,vectors.N));
 	vectors.H = normalize(vectors.V + vectors.L); 
 	
 }
@@ -134,21 +134,6 @@ void GetMaterialProperties(){
 
 vec3 getPixelColor(){
 
-
-	vec2 LUT_coord = vec2(max(0.0,dot(vectors.N,vectors.V)),pbr_mat.roughness);
-	vec3 brdf2D = texture2D(u_LUT, LUT_coord).xyz;
-
-	vec3 specularSample = getReflectionColor(v_world_position, pbr_mat.roughness); //v_world_position ???
-	float cosTheta = max(0.0,dot(vectors.N,vectors.L));
-	vec3 SpecularBRDF = FresnelSchlickRoughness(cosTheta, pbr_mat.f0, pbr_mat.roughness)*brdf2D.x + brdf2D.y; // error here
-	vec3 SpecularIBL = specularSample * SpecularBRDF; 
-
-	vec3 diffuseSample = getReflectionColor(vectors.N, pbr_mat.roughness);
-	vec3 diffuseColor = u_color.xyz;
-	vec3 DiffuseIBL = diffuseSample * diffuseColor;
-
-	vec3 IBL = SpecularIBL + DiffuseIBL;
-
 	float NdotL = max(0.0,dot(vectors.N,vectors.L));
 	float NdotV = max(0.0,dot(vectors.N,vectors.V));
 
@@ -160,7 +145,22 @@ vec3 getPixelColor(){
 	vec3 f_diffuse = mix(u_color.xyz, vec3(0.0), pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
 
-	return f + IBL;
+	vec2 LUT_coord = vec2(max(0.0,dot(vectors.N,vectors.V)),pbr_mat.roughness);
+	vec3 brdf2D = texture2D(u_LUT, LUT_coord).xyz;
+
+	vec3 specularSample = getReflectionColor(vectors.R, pbr_mat.roughness); //v_world_position ???
+	float cosTheta = max(0.0,dot(vectors.N,vectors.L));
+	vec3 SpecularBRDF = FresnelSchlickRoughness(cosTheta, pbr_mat.f0, pbr_mat.roughness)*brdf2D.x + brdf2D.y; // error here
+	vec3 SpecularIBL = specularSample * SpecularBRDF; 
+
+	vec3 diffuseSample = getReflectionColor(vectors.N, pbr_mat.roughness);
+	vec3 diffuseColor = f_diffuse;
+	vec3 DiffuseIBL = diffuseSample * diffuseColor;
+
+	vec3 IBL = SpecularIBL + DiffuseIBL;
+
+	return u_light_intensity*NdotL*f + IBL;
+	//return vectors.V;
 }
 
 void main()
@@ -169,5 +169,5 @@ void main()
 	computeVectors();
 	GetMaterialProperties();
 	float NdotL = max(0.0,dot(vectors.N,vectors.L));
-	gl_FragColor = vec4(u_light_intensity*NdotL*getPixelColor(),1.0);
+	gl_FragColor = vec4(getPixelColor(),1.0);
 }

@@ -27,7 +27,7 @@ void PBRMaterial::setUniforms(Camera* camera, Matrix44 model) {
 	shader->setUniform("u_time", Application::instance->time);
 	shader->setUniform("u_output", Application::instance->output);
 
-	//shader->setUniform("u_color", color);
+	shader->setUniform("u_color", color);
 	shader->setUniform("u_exposure", Application::instance->scene_exposure);
 
 	shader->setUniform("u_albedo", albedo, 0);

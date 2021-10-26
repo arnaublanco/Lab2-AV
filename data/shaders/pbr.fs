@@ -36,6 +36,8 @@ uniform float u_metalness_factor;
 uniform sampler2D u_LUT;
 
 uniform vec4 u_color;
+uniform vec4 u_light_color;
+
 
 uniform float u_light_intensity;
 
@@ -91,9 +93,9 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 }
 
 void computeVectors(){
-	vectors.L = normalize(u_light_pos - v_world_position);
+	vectors.L = normalize(v_world_position - u_light_pos);
 	vectors.N = normalize(v_normal);
-	vectors.V = normalize(v_world_position - u_camera_position);
+	vectors.V = normalize(u_camera_position - v_world_position);
 	vectors.R = normalize(reflect(vectors.V,vectors.N));
 	vectors.H = normalize(vectors.V + vectors.L); 
 	
@@ -160,14 +162,12 @@ vec3 getPixelColor(){
 	vec3 IBL = SpecularIBL + DiffuseIBL;
 
 	return u_light_intensity*NdotL*f + IBL;
-	//return vectors.V;
+	//return specularSample;
 }
 
 void main()
 {
-	vec4 color = pbr_mat.albedo;
 	computeVectors();
 	GetMaterialProperties();
-	float NdotL = max(0.0,dot(vectors.N,vectors.L));
 	gl_FragColor = vec4(getPixelColor(),1.0);
 }

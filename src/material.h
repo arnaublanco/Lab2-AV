@@ -37,6 +37,8 @@ public:
 	Texture* metalness = NULL;
 	Texture* roughness = NULL;
 
+	std::vector<Texture*> HDREs;
+
 	Texture* LUT = NULL;
 
 	float roughness_factor = 0.5;

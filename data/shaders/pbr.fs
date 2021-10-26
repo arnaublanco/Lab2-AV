@@ -96,7 +96,7 @@ void computeVectors(){
 	vectors.L = normalize(u_light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
 	vectors.V = normalize(u_camera_position - v_world_position);
-	vectors.R = normalize(reflect(vectors.V,vectors.N));
+	vectors.R = normalize(reflect(-vectors.V,vectors.N));
 	vectors.H = normalize(vectors.V + vectors.L); 
 	
 }
@@ -150,10 +150,10 @@ vec3 getPixelColor(){
 	vec2 LUT_coord = vec2(max(0.0,dot(vectors.N,vectors.V)),pbr_mat.roughness);
 	vec3 brdf2D = texture2D(u_LUT, LUT_coord).xyz;
 
-	vec3 specularSample = getReflectionColor(vectors.R, pbr_mat.roughness); //v_world_position ???
+	vec3 specularSample = getReflectionColor(vectors.R, pbr_mat.roughness); 
 	float cosTheta = max(0.0,dot(vectors.V,vectors.H));
-	vec3 SpecularBRDF = FresnelSchlickRoughness(cosTheta, pbr_mat.f0, pbr_mat.roughness)*brdf2D.x + brdf2D.y; // error here
-	vec3 SpecularIBL = specularSample * SpecularBRDF; 
+	vec3 SpecularBRDF = FresnelSchlickRoughness(cosTheta, pbr_mat.f0, pbr_mat.roughness)*brdf2D.x + brdf2D.y; 
+	vec3 SpecularIBL = specularSample * SpecularBRDF;
 
 	vec3 diffuseSample = getReflectionColor(vectors.N, pbr_mat.roughness);
 	vec3 diffuseColor = f_diffuse;
@@ -161,8 +161,8 @@ vec3 getPixelColor(){
 
 	vec3 IBL = SpecularIBL + DiffuseIBL;
 
-	return u_light_intensity*NdotL*f;
-	//return specularSample;
+	return u_light_intensity*NdotL*f + IBL;
+	//return SpecularIBL;
 }
 
 void main()

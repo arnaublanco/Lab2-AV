@@ -41,6 +41,13 @@ void PBRMaterial::setUniforms(Camera* camera, Matrix44 model) {
 
 	shader->setUniform("u_LUT", LUT, 3);
 
+	shader->setUniform("u_texture", HDREs[0], 4);
+	shader->setUniform("u_texture_prem_0", HDREs[1], 5);
+	shader->setUniform("u_texture_prem_1", HDREs[2], 6);
+	shader->setUniform("u_texture_prem_2", HDREs[3], 7);
+	shader->setUniform("u_texture_prem_3", HDREs[4], 8);
+	shader->setUniform("u_texture_prem_4", HDREs[5], 9);
+
 }
 
 void PBRMaterial::renderInMenu() {
@@ -61,8 +68,7 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 	shader->setUniform("u_color", color);
 	shader->setUniform("u_exposure", Application::instance->scene_exposure);
 
-	if (texture)
-		shader->setUniform("u_texture", texture);
+	
 }
 
 void StandardMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)

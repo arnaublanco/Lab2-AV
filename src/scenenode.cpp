@@ -6,7 +6,7 @@
 unsigned int SceneNode::lastNameId = 0;
 unsigned int mesh_selected = 0;
 unsigned int background_selected = 0;
-const char* backgrounds[3] = { "data/environments/snow", "data/environments/city", "data/environments/dragonvale" };
+const char* backgrounds[3] = { "data/environments/pisa.hdre", "data/environments/san_giuseppe_bridge.hdre", "data/environments/panorama.hdre" };
 const char* meshes[2] = { "data/meshes/sphere.obj.mbin", "data/models/helmet/helmet.obj.mbin"};
 const char* albedos[2] = { "data/models/ball/albedo.png", "data/models/helmet/albedo.png" };
 const char* metals[2] = { "data/models/ball/metalness.png","data/models/helmet/metalness.png" };
@@ -93,7 +93,7 @@ Light::~Light() {
 }
 
 void Light::setUniforms() {
-	material->shader->setUniform("u_light_pos", model * Vector4(position, 1.0).xyz);
+	material->shader->setUniform("u_light_pos", model.getTranslation());
 	material->shader->setUniform("u_light_intensity", light_intensity);
 	material->shader->setUniform("u_light_color", color);
 }
@@ -134,13 +134,9 @@ void SkyBoxNode::render(Camera* camera) {
 	if (material) {
 		glDisable(GL_DEPTH_TEST);
 		material->render(mesh, model, camera);
-
-		material->shader->setTexture("u_texture_prem_0", HDREs[0], 3);
-		material->shader->setTexture("u_texture_prem_1", HDREs[1], 4);
-		material->shader->setTexture("u_texture_prem_2", HDREs[2], 5);
-		material->shader->setTexture("u_texture_prem_3", HDREs[3], 6);
-		material->shader->setTexture("u_texture_prem_4", HDREs[4], 7);
-
+		material->shader->enable();
+		material->shader->setUniform("u_texture", material->texture, 10);
+		material->shader->disable();
 		glEnable(GL_DEPTH_TEST);
 	}
 
@@ -149,9 +145,10 @@ void SkyBoxNode::render(Camera* camera) {
 void SkyBoxNode::renderInMenu() {
 
 	bool changed = false;
-	changed |= ImGui::Combo("Background", (int*)&background_selected, "SNOW\0CITY\0DRAGON VALE");
+	changed |= ImGui::Combo("Background", (int*)&background_selected, "PISA\0GIUSEPPE_BRIDGE\0PANORAMA");
 
 	if (changed) {
-		material->texture->cubemapFromImages(backgrounds[background_selected]);
+		HDRE* hdre = HDRE::Get(backgrounds[background_selected]);
+		material->texture->cubemapFromHDRE(hdre,0);
 	}
 }

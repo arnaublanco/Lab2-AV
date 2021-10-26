@@ -47,7 +47,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	{
 		//LIGHT
 		Light* light = new Light("Light");
-		light->position = Vector3(60, 60, 0);
+		light->model.setTranslation(0.0f, 10.0f, 0.0f);
 
 		StandardMaterial* lightMat = new StandardMaterial();
 		Shader* shader = Shader::Get("data/shaders/basic.vs", "data/shaders/pbr.fs");
@@ -59,8 +59,12 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		SkyBoxNode* background = new SkyBoxNode("Background");
 		StandardMaterial* matBG = new StandardMaterial();
 
+		// Environment light
+		HDRE* hdre = HDRE::Get("data/environments/pisa.hdre");
+
 		Texture* cubemap = new Texture();
-		cubemap->cubemapFromImages("data/environments/snow");
+		unsigned int LEVEL = 0;
+		cubemap->cubemapFromHDRE(hdre, LEVEL);
 
 		matBG->texture = cubemap;
 		matBG->shader = Shader::Get("data/shaders/basicSkyBox.vs", "data/shaders/skybox.fs");
@@ -75,21 +79,19 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		mat->roughness = Texture::Get("data/models/ball/roughness.png");
 		mat->LUT = Texture::Get("data/brdfLUT.png");
 
+		unsigned int N = 6;
+		for (unsigned int i = 0; i <= N; i++) {
+			Texture* texture = new Texture();
+			texture->cubemapFromHDRE(hdre, i);
+			mat->HDREs.push_back(texture);
+		}
+
 		SceneNode* node = new SceneNode("Ball 1");
 		node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
 		node->material = mat;
 		mat->shader = shader;
 		mat->color = vec4(1.0, 1.0, 1.0, 1.0);
 		node_list.push_back(node);
-
-		// Environment light
-		HDRE* hdre = HDRE::Get("data/environments/studio.hdre");
-		unsigned int N = 4;
-		for (unsigned int i = 0; i <= N; i++) {
-			Texture* texture = new Texture();
-			texture->cubemapFromHDRE(hdre, i);
-			background->HDREs[i] = texture;
-		}
 
 	}
 	

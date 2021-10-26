@@ -136,6 +136,8 @@ void GetMaterialProperties(){
 
 vec3 getPixelColor(){
 
+	vec3 albedo = gamma_to_linear(pbr_mat.albedo.xyz);
+
 	float NdotL = max(0.0,dot(vectors.N,vectors.L));
 	float NdotV = max(0.0,dot(vectors.N,vectors.V));
 
@@ -144,7 +146,7 @@ vec3 getPixelColor(){
 	vec3 F = computeFresnel();
 
 	vec3 f_specular = (F*G*D)/(4.0*NdotL*NdotV + epsilon);
-	vec3 f_diffuse = mix(pbr_mat.albedo.xyz, vec3(0.0), pbr_mat.metalness)/PI;
+	vec3 f_diffuse = mix(albedo, vec3(0.0), pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
 
 	vec2 LUT_coord = vec2(max(0.0,dot(vectors.N,vectors.V)),pbr_mat.roughness);
@@ -152,22 +154,24 @@ vec3 getPixelColor(){
 
 	vec3 specularSample = getReflectionColor(vectors.R, pbr_mat.roughness); 
 	float cosTheta = max(0.0,dot(vectors.V,vectors.H));
-	vec3 SpecularBRDF = FresnelSchlickRoughness(cosTheta, pbr_mat.f0, pbr_mat.roughness)*brdf2D.x + brdf2D.y; 
+	vec3 Ks = FresnelSchlickRoughness(cosTheta, pbr_mat.f0, pbr_mat.roughness);
+	vec3 SpecularBRDF = Ks*brdf2D.x + brdf2D.y; 
 	vec3 SpecularIBL = specularSample * SpecularBRDF;
 
 	vec3 diffuseSample = getReflectionColor(vectors.N, pbr_mat.roughness);
 	vec3 diffuseColor = f_diffuse;
 	vec3 DiffuseIBL = diffuseSample * diffuseColor;
+	DiffuseIBL *= (vec3(1.0) - Ks);
 
 	vec3 IBL = SpecularIBL + DiffuseIBL;
 
 	return u_light_intensity*NdotL*f + IBL;
-	//return SpecularIBL;
+	//return DiffuseIBL;
 }
 
 void main()
 {
 	computeVectors();
 	GetMaterialProperties();
-	gl_FragColor = vec4(getPixelColor(),1.0);
+	gl_FragColor = vec4(linear_to_gamma(getPixelColor()),1.0);
 }

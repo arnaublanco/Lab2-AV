@@ -93,7 +93,7 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 }
 
 void computeVectors(){
-	vectors.L = normalize(v_world_position - u_light_pos);
+	vectors.L = normalize(u_light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
 	vectors.V = normalize(u_camera_position - v_world_position);
 	vectors.R = normalize(reflect(vectors.V,vectors.N));
@@ -130,8 +130,8 @@ vec3 computeFresnel(){
 void GetMaterialProperties(){
 	pbr_mat.metalness = texture2D(u_metalness, v_uv).x*u_metalness_factor;
 	pbr_mat.roughness = texture2D(u_roughness, v_uv).x*u_roughness_factor;
-	pbr_mat.albedo = texture2D(u_albedo, v_uv);
-	pbr_mat.f0 = mix(vec3(0.04), u_color.xyz, pbr_mat.metalness);
+	pbr_mat.albedo = texture2D(u_albedo, v_uv)*u_color;
+	pbr_mat.f0 = mix(vec3(0.04), pbr_mat.albedo.xyz, pbr_mat.metalness);
 }
 
 vec3 getPixelColor(){
@@ -144,14 +144,14 @@ vec3 getPixelColor(){
 	vec3 F = computeFresnel();
 
 	vec3 f_specular = (F*G*D)/(4.0*NdotL*NdotV + epsilon);
-	vec3 f_diffuse = mix(u_color.xyz, vec3(0.0), pbr_mat.metalness)/PI;
+	vec3 f_diffuse = mix(pbr_mat.albedo.xyz, vec3(0.0), pbr_mat.metalness)/PI;
 	vec3 f = f_specular + f_diffuse;
 
 	vec2 LUT_coord = vec2(max(0.0,dot(vectors.N,vectors.V)),pbr_mat.roughness);
 	vec3 brdf2D = texture2D(u_LUT, LUT_coord).xyz;
 
 	vec3 specularSample = getReflectionColor(vectors.R, pbr_mat.roughness); //v_world_position ???
-	float cosTheta = max(0.0,dot(vectors.N,vectors.L));
+	float cosTheta = max(0.0,dot(vectors.V,vectors.H));
 	vec3 SpecularBRDF = FresnelSchlickRoughness(cosTheta, pbr_mat.f0, pbr_mat.roughness)*brdf2D.x + brdf2D.y; // error here
 	vec3 SpecularIBL = specularSample * SpecularBRDF; 
 
@@ -161,7 +161,7 @@ vec3 getPixelColor(){
 
 	vec3 IBL = SpecularIBL + DiffuseIBL;
 
-	return u_light_intensity*NdotL*f + IBL;
+	return u_light_intensity*NdotL*f;
 	//return specularSample;
 }
 

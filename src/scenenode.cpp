@@ -11,6 +11,7 @@ const char* meshes[2] = { "data/meshes/sphere.obj.mbin", "data/models/helmet/hel
 const char* albedos[2] = { "data/models/ball/albedo.png", "data/models/helmet/albedo.png" };
 const char* metals[2] = { "data/models/ball/metalness.png","data/models/helmet/metalness.png" };
 const char* roughs[2] = { "data/models/ball/roughness.png","data/models/helmet/roughness.png" };
+int hdre_changed = 0;
 
 
 SceneNode::SceneNode()
@@ -150,5 +151,6 @@ void SkyBoxNode::renderInMenu() {
 	if (changed) {
 		HDRE* hdre = HDRE::Get(backgrounds[background_selected]);
 		material->texture->cubemapFromHDRE(hdre,0);
+		hdre_changed = 1;
 	}
 }

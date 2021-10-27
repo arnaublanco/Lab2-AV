@@ -29,6 +29,7 @@ const float INV_GAMMA = 1.0 / GAMMA;
 uniform sampler2D u_albedo;
 uniform sampler2D u_metalness; 
 uniform sampler2D u_roughness;
+uniform sampler2D u_emissive;
 
 uniform float u_roughness_factor;
 uniform float u_metalness_factor;
@@ -114,6 +115,11 @@ float computeGeometry(){
 	return G;
 }
 
+vec3 toneMap(vec3 color)
+{
+    return color / (color + vec3(1.0));
+}
+
 float computeDistribution(){
 	float alpha = pow(pbr_mat.roughness, 2.0);
 	float NdotH = max(0.0,dot(vectors.N, vectors.H));
@@ -158,7 +164,7 @@ vec3 getPixelColor(){
 	vec3 SpecularBRDF = Ks*brdf2D.x + brdf2D.y; 
 	vec3 SpecularIBL = specularSample * SpecularBRDF;
 
-	vec3 diffuseSample = getReflectionColor(vectors.N, pbr_mat.roughness);
+	vec3 diffuseSample = getReflectionColor(vectors.N, 1.0); // why?
 	vec3 diffuseColor = f_diffuse;
 	vec3 DiffuseIBL = diffuseSample * diffuseColor;
 	DiffuseIBL *= (vec3(1.0) - Ks);

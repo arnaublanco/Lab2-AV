@@ -36,6 +36,7 @@ public:
 	Texture* albedo = NULL;
 	Texture* metalness = NULL;
 	Texture* roughness = NULL;
+	Texture* emissive = NULL;
 
 	std::vector<Texture*> HDREs;
 

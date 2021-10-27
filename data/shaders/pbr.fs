@@ -39,7 +39,6 @@ uniform sampler2D u_LUT;
 uniform vec4 u_color;
 uniform vec4 u_light_color;
 
-
 uniform float u_light_intensity;
 
 uniform vec3 f0;
@@ -179,5 +178,12 @@ void main()
 {
 	computeVectors();
 	GetMaterialProperties();
-	gl_FragColor = vec4(linear_to_gamma(getPixelColor()),1.0);
+
+	//if (u_emissive == NULL){
+	//	vec3 emissive = vec3(0.0f);
+	//}else{
+		vec3 emissive = gamma_to_linear(texture2D(u_emissive,v_uv).xyz);
+	//}
+	
+	gl_FragColor = vec4(linear_to_gamma(getPixelColor() + emissive),1.0);
 }

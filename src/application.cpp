@@ -77,7 +77,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		mat->albedo = Texture::Get("data/models/ball/albedo.png");
 		mat->metalness = Texture::Get("data/models/ball/metalness.png");
 		mat->roughness = Texture::Get("data/models/ball/roughness.png");
-		//mat->emissive = Texture::Get("data/models/ball/emissive.png");
+		mat->emissive = NULL;
 		mat->LUT = Texture::Get("data/brdfLUT.png");
 
 		unsigned int N = 6;

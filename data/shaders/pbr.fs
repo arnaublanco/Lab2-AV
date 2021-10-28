@@ -29,6 +29,7 @@ const float INV_GAMMA = 1.0 / GAMMA;
 uniform sampler2D u_albedo;
 uniform sampler2D u_metalness; 
 uniform sampler2D u_roughness;
+uniform sampler2D u_emissive;
 
 uniform float u_roughness_factor;
 uniform float u_metalness_factor;
@@ -37,7 +38,6 @@ uniform sampler2D u_LUT;
 
 uniform vec4 u_color;
 uniform vec4 u_light_color;
-
 
 uniform float u_light_intensity;
 
@@ -114,6 +114,11 @@ float computeGeometry(){
 	return G;
 }
 
+vec3 toneMap(vec3 color)
+{
+    return color / (color + vec3(1.0));
+}
+
 float computeDistribution(){
 	float alpha = pow(pbr_mat.roughness, 2.0);
 	float NdotH = max(0.0,dot(vectors.N, vectors.H));
@@ -158,7 +163,7 @@ vec3 getPixelColor(){
 	vec3 SpecularBRDF = Ks*brdf2D.x + brdf2D.y; 
 	vec3 SpecularIBL = specularSample * SpecularBRDF;
 
-	vec3 diffuseSample = getReflectionColor(vectors.N, pbr_mat.roughness);
+	vec3 diffuseSample = getReflectionColor(vectors.N, 1.0); // why?
 	vec3 diffuseColor = f_diffuse;
 	vec3 DiffuseIBL = diffuseSample * diffuseColor;
 	DiffuseIBL *= (vec3(1.0) - Ks);
@@ -173,5 +178,12 @@ void main()
 {
 	computeVectors();
 	GetMaterialProperties();
-	gl_FragColor = vec4(linear_to_gamma(getPixelColor()),1.0);
+
+	//if (u_emissive == NULL){
+	//	vec3 emissive = vec3(0.0f);
+	//}else{
+		vec3 emissive = gamma_to_linear(texture2D(u_emissive,v_uv).xyz);
+	//}
+	
+	gl_FragColor = vec4(linear_to_gamma(getPixelColor() + emissive),1.0);
 }

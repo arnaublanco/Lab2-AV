@@ -1,7 +1,9 @@
 #include "material.h"
 #include "texture.h"
 #include "application.h"
+#include "scenenode.h"
 #include "extra/hdre.h"
+#include <iostream>
 
 StandardMaterial::StandardMaterial()
 {
@@ -33,7 +35,13 @@ void PBRMaterial::setUniforms(Camera* camera, Matrix44 model) {
 	shader->setUniform("u_albedo", albedo, 0);
 	shader->setUniform("u_metalness", metalness, 1);
 	shader->setUniform("u_roughness", roughness, 2);
-	shader->setUniform("u_emissive", emissive, 11);
+
+	//if (emissive == NULL) {
+	//	shader->setUniform("u_emissive", Vector3(0.0));
+	//}
+	//else {
+		shader->setUniform("u_emissive", emissive, 11);
+	//}
 	
 
 
@@ -72,6 +80,41 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 	shader->setUniform("u_exposure", Application::instance->scene_exposure);
 
 	
+}
+
+void PBRMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
+{
+	if (mesh && shader)
+	{
+		//enable shader
+		shader->enable();
+
+		if (hdre_changed) {
+			HDRE* hdre = HDRE::Get(backgrounds[background_selected]);
+
+			unsigned int N = 6;
+			for (unsigned int i = 0; i <= N; i++) {
+				HDREs.pop_back();
+			}
+			
+			for (unsigned int i = 0; i <= N; i++) {
+				Texture* texture = new Texture();
+				texture->cubemapFromHDRE(hdre, i);
+				HDREs.push_back(texture);
+			}
+			hdre_changed = 0;
+		}
+
+		//upload uniforms
+		setUniforms(camera, model);
+
+		//do the draw call
+		mesh->render(GL_TRIANGLES);
+		
+
+		//disable shader
+		shader->disable();
+	}
 }
 
 void StandardMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)

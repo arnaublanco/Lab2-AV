@@ -2,12 +2,14 @@
 #define SCENENODE_H
 
 #include "framework.h"
-
 #include "shader.h"
 #include "mesh.h"
 #include "camera.h"
 #include "material.h"
 
+extern const char* backgrounds[3];
+extern unsigned int background_selected;
+extern int hdre_changed;
 
 class SceneNode {
 public:

@@ -47,6 +47,7 @@ public:
 
 	PBRMaterial();
 	~PBRMaterial();
+	void render(Mesh* mesh, Matrix44 model, Camera* camera);
 	void setUniforms(Camera* camera, Matrix44 model);
 	void renderInMenu();
 };

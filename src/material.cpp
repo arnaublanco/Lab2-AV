@@ -36,8 +36,8 @@ void PBRMaterial::setUniforms(Camera* camera, Matrix44 model) {
 	shader->setUniform("u_metalness", metalness, 1);
 	shader->setUniform("u_roughness", roughness, 2);
 
-	shader->setUniform("u_emissive", emissive, 10);
-	shader->setUniform("u_normal", normal, 11);
+	shader->setUniform("u_emissive", emissive, 11);
+	shader->setUniform("u_normal", normal, 12);
 
 	shader->setUniform("u_camera_position", camera->eye);
 
@@ -82,6 +82,8 @@ void PBRMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
 	{
 		//enable shader
 		shader->enable();
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		if (hdre_changed) {
 			HDRE* hdre = HDRE::Get(backgrounds[background_selected]);
@@ -104,7 +106,7 @@ void PBRMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
 
 		//do the draw call
 		mesh->render(GL_TRIANGLES);
-		
+		glDisable(GL_BLEND);
 
 		//disable shader
 		shader->disable();

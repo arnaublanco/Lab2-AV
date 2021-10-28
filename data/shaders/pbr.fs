@@ -168,6 +168,7 @@ vec3 computeFresnel(){
 void GetMaterialProperties(){
 	pbr_mat.metalness = texture2D(u_metalness, v_uv).x*u_metalness_factor;
 	pbr_mat.roughness = texture2D(u_roughness, v_uv).x*u_roughness_factor;
+	u_color.a = 0.3;
 	pbr_mat.albedo = texture2D(u_albedo, v_uv)*u_color;
 	pbr_mat.f0 = mix(vec3(0.04), pbr_mat.albedo.xyz, pbr_mat.metalness);
 }
@@ -188,7 +189,7 @@ vec3 getPixelColor(){
 	vec3 f = f_specular + f_diffuse;
 
 	vec2 LUT_coord = vec2(max(0.0,dot(vectors.N,vectors.V)),pbr_mat.roughness);
-	vec3 brdf2D = texture2D(u_LUT, LUT_coord).xyz;
+	vec3 brdf2D = texture2D(u_LUT, clamp(LUT_coord,0.01,0.99)).xyz;
 
 	vec3 specularSample = getReflectionColor(vectors.R, pbr_mat.roughness); 
 	float cosTheta = max(0.0,dot(vectors.V,vectors.H));
@@ -212,7 +213,7 @@ void main()
 	GetMaterialProperties();
 
 	vec3 emissive = gamma_to_linear(texture2D(u_emissive,v_uv).xyz);
+	vec3 opacity = vec3(1.0);
 	
-	gl_FragColor = vec4(linear_to_gamma(getPixelColor() + emissive),1.0);
-	//gl_FragColor = textureCube(u_texture_prem_0, vectors.N);
+	gl_FragColor = vec4(linear_to_gamma(opacity*getPixelColor() + emissive),1.0);
 }

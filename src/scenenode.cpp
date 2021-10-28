@@ -14,6 +14,7 @@ const char* albedos[2] = { "data/models/ball/albedo.png", "data/models/helmet/al
 const char* metals[2] = { "data/models/ball/metalness.png","data/models/helmet/metalness.png" };
 const char* roughs[2] = { "data/models/ball/roughness.png","data/models/helmet/roughness.png" };
 const char* emiss[2] = { "data/models/ball/emissive.png", "data/models/helmet/emissive.png" };
+const char* normals[2] = { "data/models/ball/normal.png", "data/models/helmet/normal.png" };
 int hdre_changed = 0;
 
 
@@ -80,7 +81,7 @@ void SceneNode::renderInMenu()
 				mat->albedo = Texture::Get(albedos[mesh_selected]);
 				mat->metalness = Texture::Get(metals[mesh_selected]);
 				mat->roughness = Texture::Get(roughs[mesh_selected]);
-
+				mat->normal = Texture::Get(normals[mesh_selected]);
 				mat->emissive = Texture::Get(emiss[mesh_selected]);
 			}
 		}

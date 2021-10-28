@@ -13,7 +13,7 @@ const char* meshes[2] = { "data/meshes/sphere.obj.mbin", "data/models/helmet/hel
 const char* albedos[2] = { "data/models/ball/albedo.png", "data/models/helmet/albedo.png" };
 const char* metals[2] = { "data/models/ball/metalness.png","data/models/helmet/metalness.png" };
 const char* roughs[2] = { "data/models/ball/roughness.png","data/models/helmet/roughness.png" };
-const char* emiss[2] = { "", "data/models/helmet/emissive.png" };
+const char* emiss[2] = { "data/models/ball/emissive.png", "data/models/helmet/emissive.png" };
 int hdre_changed = 0;
 
 
@@ -81,12 +81,7 @@ void SceneNode::renderInMenu()
 				mat->metalness = Texture::Get(metals[mesh_selected]);
 				mat->roughness = Texture::Get(roughs[mesh_selected]);
 
-				if (strcmp(emiss[mesh_selected],"") == 0) {
-					mat->emissive = NULL;
-				}
-				else {
-					mat->emissive = Texture::Get(emiss[mesh_selected]);
-				}
+				mat->emissive = Texture::Get(emiss[mesh_selected]);
 			}
 		}
 		ImGui::TreePop();

@@ -179,11 +179,7 @@ void main()
 	computeVectors();
 	GetMaterialProperties();
 
-	//if (u_emissive == NULL){
-	//	vec3 emissive = vec3(0.0f);
-	//}else{
-		vec3 emissive = gamma_to_linear(texture2D(u_emissive,v_uv).xyz);
-	//}
+	vec3 emissive = gamma_to_linear(texture2D(u_emissive,v_uv).xyz);
 	
 	gl_FragColor = vec4(linear_to_gamma(getPixelColor() + emissive),1.0);
 }

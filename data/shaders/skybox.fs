@@ -22,8 +22,13 @@ vec3 linear_to_gamma(vec3 color)
 	return pow(color, vec3(INV_GAMMA));
 }
 
+vec3 toneMap(vec3 color)
+{
+    return color / (color + vec3(1.0));
+}
+
 void main()
 {
 	vec3 direction = v_world_position - u_camera_position;
-	gl_FragColor = vec4(linear_to_gamma(textureCube(u_texture, direction).xyz),1.0);
+	gl_FragColor = vec4(linear_to_gamma(toneMap(textureCube(u_texture, direction).xyz)),1.0);
 }

@@ -96,6 +96,7 @@ void computeVectors(){
 	vectors.L = normalize(u_light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
 	vectors.V = normalize(u_camera_position - v_world_position);
+	//vectors.N = perturbNormal(vectors.N, vectors.V, v_uv, texture2D(,v_uv));
 	vectors.R = normalize(reflect(-vectors.V,vectors.N));
 	vectors.H = normalize(vectors.V + vectors.L); 
 	
@@ -139,6 +140,19 @@ void GetMaterialProperties(){
 	pbr_mat.f0 = mix(vec3(0.04), pbr_mat.albedo.xyz, pbr_mat.metalness);
 }
 
+vec3 perturbNormal( vec3 N, vec3 V, vec2 texcoord, vec3 normal_pixel ){
+	#ifdef USE_POINTS
+	return N;
+	#endif
+
+	// assume N, the interpolated vertex normal and
+	// V, the view vector (vertex to eye)
+	//vec3 normal_pixel = texture2D(normalmap, texcoord ).xyz;
+	normal_pixel = normal_pixel * 255./127. - 128./127.;
+	mat3 TBN = cotangent_frame(N, V, texcoord);
+	return normalize(TBN * normal_pixel);
+}
+
 vec3 getPixelColor(){
 
 	vec3 albedo = gamma_to_linear(pbr_mat.albedo.xyz);
@@ -163,7 +177,7 @@ vec3 getPixelColor(){
 	vec3 SpecularBRDF = Ks*brdf2D.x + brdf2D.y; 
 	vec3 SpecularIBL = specularSample * SpecularBRDF;
 
-	vec3 diffuseSample = getReflectionColor(vectors.N, 1.0); // why?
+	vec3 diffuseSample = getReflectionColor(vectors.N, 1.0); // why the 1.0?
 	vec3 diffuseColor = f_diffuse;
 	vec3 DiffuseIBL = diffuseSample * diffuseColor;
 	DiffuseIBL *= (vec3(1.0) - Ks);

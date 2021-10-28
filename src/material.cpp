@@ -85,7 +85,7 @@ void PBRMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
 		if (hdre_changed) {
 			HDRE* hdre = HDRE::Get(backgrounds[background_selected]);
 
-			unsigned int N = 6;
+			unsigned int N = 5;
 			for (unsigned int i = 0; i <= N; i++) {
 				HDREs.pop_back();
 			}

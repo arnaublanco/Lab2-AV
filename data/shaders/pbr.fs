@@ -171,7 +171,6 @@ vec3 getPixelColor(){
 	vec3 IBL = SpecularIBL + DiffuseIBL;
 
 	return u_light_intensity*NdotL*f + IBL;
-	//return DiffuseIBL;
 }
 
 void main()
@@ -182,4 +181,5 @@ void main()
 	vec3 emissive = gamma_to_linear(texture2D(u_emissive,v_uv).xyz);
 	
 	gl_FragColor = vec4(linear_to_gamma(getPixelColor() + emissive),1.0);
+	//gl_FragColor = textureCube(u_texture_prem_0, vectors.N);
 }

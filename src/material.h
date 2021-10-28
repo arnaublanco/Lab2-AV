@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "mesh.h"
 #include "extra/hdre.h"
+using namespace std;
 
 class Material {
 public:

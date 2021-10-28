@@ -80,7 +80,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		mat->emissive = Texture::Get("data/models/ball/emissive.png");
 		mat->LUT = Texture::Get("data/brdfLUT.png");
 
-		unsigned int N = 6;
+		unsigned int N = 5;
 		for (unsigned int i = 0; i <= N; i++) {
 			Texture* texture = new Texture();
 			texture->cubemapFromHDRE(hdre, i);

@@ -30,6 +30,7 @@ uniform sampler2D u_albedo;
 uniform sampler2D u_metalness; 
 uniform sampler2D u_roughness;
 uniform sampler2D u_emissive;
+uniform sampler2D u_normal;
 
 uniform float u_roughness_factor;
 uniform float u_metalness_factor;
@@ -58,6 +59,37 @@ struct Vectors{
 	vec3 R;
 	vec3 H;
 }vectors;
+
+mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv){
+	// get edge vectors of the pixel triangle
+	vec3 dp1 = dFdx( p );
+	vec3 dp2 = dFdy( p );
+	vec2 duv1 = dFdx( uv );
+	vec2 duv2 = dFdy( uv );
+
+	// solve the linear system
+	vec3 dp2perp = cross( dp2, N );
+	vec3 dp1perp = cross( N, dp1 );
+	vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+	vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+
+	// construct a scale-invariant frame
+	float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
+	return mat3( T * invmax, B * invmax, N );
+}
+
+vec3 perturbNormal( vec3 N, vec3 V, vec2 texcoord, vec3 normal_pixel ){
+	#ifdef USE_POINTS
+	return N;
+	#endif
+
+	// assume N, the interpolated vertex normal and
+	// V, the view vector (vertex to eye)
+	//vec3 normal_pixel = texture2D(normalmap, texcoord ).xyz;
+	normal_pixel = normal_pixel * 255./127. - 128./127.;
+	mat3 TBN = cotangent_frame(N, V, texcoord);
+	return normalize(TBN * normal_pixel);
+}
 
 // degamma
 vec3 gamma_to_linear(vec3 color)
@@ -96,7 +128,7 @@ void computeVectors(){
 	vectors.L = normalize(u_light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
 	vectors.V = normalize(u_camera_position - v_world_position);
-	//vectors.N = perturbNormal(vectors.N, vectors.V, v_uv, texture2D(,v_uv));
+	vectors.N = perturbNormal(vectors.N, vectors.V, v_uv, texture2D(u_normal,v_uv));
 	vectors.R = normalize(reflect(-vectors.V,vectors.N));
 	vectors.H = normalize(vectors.V + vectors.L); 
 	
@@ -138,19 +170,6 @@ void GetMaterialProperties(){
 	pbr_mat.roughness = texture2D(u_roughness, v_uv).x*u_roughness_factor;
 	pbr_mat.albedo = texture2D(u_albedo, v_uv)*u_color;
 	pbr_mat.f0 = mix(vec3(0.04), pbr_mat.albedo.xyz, pbr_mat.metalness);
-}
-
-vec3 perturbNormal( vec3 N, vec3 V, vec2 texcoord, vec3 normal_pixel ){
-	#ifdef USE_POINTS
-	return N;
-	#endif
-
-	// assume N, the interpolated vertex normal and
-	// V, the view vector (vertex to eye)
-	//vec3 normal_pixel = texture2D(normalmap, texcoord ).xyz;
-	normal_pixel = normal_pixel * 255./127. - 128./127.;
-	mat3 TBN = cotangent_frame(N, V, texcoord);
-	return normalize(TBN * normal_pixel);
 }
 
 vec3 getPixelColor(){

@@ -38,6 +38,7 @@ public:
 	Texture* metalness = NULL;
 	Texture* roughness = NULL;
 	Texture* emissive = NULL;
+	Texture* normal = NULL;
 
 	std::vector<Texture*> HDREs;
 

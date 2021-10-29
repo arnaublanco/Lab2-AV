@@ -88,7 +88,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 			mat->HDREs.push_back(texture);
 		}
 
-		SceneNode* node = new SceneNode("Ball 1");
+		SceneNode* node = new SceneNode("Object example");
 		node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
 		node->material = mat;
 		mat->shader = shader;

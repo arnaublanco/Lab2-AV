@@ -9,12 +9,12 @@ unsigned int SceneNode::lastNameId = 0;
 unsigned int mesh_selected = 0;
 unsigned int background_selected = 0;
 const char* backgrounds[3] = { "data/environments/pisa.hdre", "data/environments/san_giuseppe_bridge.hdre", "data/environments/panorama.hdre" };
-const char* meshes[2] = { "data/meshes/sphere.obj.mbin", "data/models/helmet/helmet.obj.mbin"};
-const char* albedos[2] = { "data/models/ball/albedo.png", "data/models/helmet/albedo.png" };
-const char* metals[2] = { "data/models/ball/metalness.png","data/models/helmet/metalness.png" };
-const char* roughs[2] = { "data/models/ball/roughness.png","data/models/helmet/roughness.png" };
-const char* emiss[2] = { "data/models/ball/emissive.png", "data/models/helmet/emissive.png" };
-const char* normals[2] = { "data/models/ball/normal.png", "data/models/helmet/normal.png" };
+const char* meshes[4] = { "data/meshes/sphere.obj.mbin", "data/models/helmet/helmet.obj.mbin", "data/models/bench/bench.obj.mbin", "data/models/lantern/lantern.obj.mbin" };
+const char* albedos[4] = { "data/models/ball/albedo.png", "data/models/helmet/albedo.png", "data/models/bench/albedo.png", "data/models/lantern/albedo.png" };
+const char* metals[4] = { "data/models/ball/metalness.png","data/models/helmet/metalness.png", "data/models/bench/metalness.png", "data/models/lantern/metalness.png" };
+const char* roughs[4] = { "data/models/ball/roughness.png","data/models/helmet/roughness.png", "data/models/bench/roughness.png", "data/models/lantern/roughness.png" };
+const char* emiss[4] = { "data/models/ball/emissive.png", "data/models/helmet/emissive.png", "data/models/bench/emissive.png", "data/models/lantern/emissive.png" };
+const char* normals[4] = { "data/models/ball/normal.png", "data/models/helmet/normal.png", "data/models/bench/normal.png", "data/models/lantern/normal.png" };
 int hdre_changed = 0;
 
 
@@ -72,7 +72,7 @@ void SceneNode::renderInMenu()
 	if (mesh && ImGui::TreeNode("Geometry"))
 	{
 		bool changed = false;
-		changed |= ImGui::Combo("Mesh/Model", (int*)&mesh_selected, "SPHERE\0HELMET\0");
+		changed |= ImGui::Combo("Mesh/Model", (int*)&mesh_selected, "SPHERE\0HELMET\0BENCH\0LANTERN\0");
 
 		if (changed) {
 			mesh = Mesh::Get(meshes[mesh_selected]);
@@ -102,7 +102,6 @@ Light::~Light() {
 void Light::setUniforms() {
 	material->shader->setUniform("u_light_pos", model.getTranslation());
 	material->shader->setUniform("u_light_intensity", light_intensity);
-	material->shader->setUniform("u_light_color", color);
 }
 
 void Light::renderInMenu() {
@@ -119,7 +118,6 @@ void Light::renderInMenu() {
 	}
 
 	if (ImGui::TreeNode("Properties")) {
-		ImGui::ColorEdit3("Color", (float*)&color);
 		ImGui::SliderFloat("Intensity", (float*)&light_intensity, 0.0f, 1.0f);
 		ImGui::TreePop();
 	}

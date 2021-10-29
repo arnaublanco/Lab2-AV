@@ -38,7 +38,6 @@ uniform float u_metalness_factor;
 uniform sampler2D u_LUT;
 
 uniform vec4 u_color;
-uniform vec4 u_light_color;
 
 uniform float u_light_intensity;
 
@@ -128,7 +127,7 @@ void computeVectors(){
 	vectors.L = normalize(u_light_pos - v_world_position);
 	vectors.N = normalize(v_normal);
 	vectors.V = normalize(u_camera_position - v_world_position);
-	vectors.N = perturbNormal(vectors.N, vectors.V, v_uv, texture2D(u_normal,v_uv));
+	vectors.N = perturbNormal(vectors.N, vectors.V, v_uv, texture2D(u_normal,v_uv).xyz);
 	vectors.R = normalize(reflect(-vectors.V,vectors.N));
 	vectors.H = normalize(vectors.V + vectors.L); 
 	
@@ -167,8 +166,7 @@ vec3 computeFresnel(){
 
 void GetMaterialProperties(){
 	pbr_mat.metalness = texture2D(u_metalness, v_uv).x*u_metalness_factor;
-	pbr_mat.roughness = texture2D(u_roughness, v_uv).x*u_roughness_factor;
-	u_color.a = 0.3;
+	pbr_mat.roughness = texture2D(u_roughness, v_uv).y*u_roughness_factor;
 	pbr_mat.albedo = texture2D(u_albedo, v_uv)*u_color;
 	pbr_mat.f0 = mix(vec3(0.04), pbr_mat.albedo.xyz, pbr_mat.metalness);
 }
@@ -197,14 +195,17 @@ vec3 getPixelColor(){
 	vec3 SpecularBRDF = Ks*brdf2D.x + brdf2D.y; 
 	vec3 SpecularIBL = specularSample * SpecularBRDF;
 
-	vec3 diffuseSample = getReflectionColor(vectors.N, 1.0); // why the 1.0?
+	vec3 diffuseSample = getReflectionColor(vectors.N, 1.0);
 	vec3 diffuseColor = f_diffuse;
 	vec3 DiffuseIBL = diffuseSample * diffuseColor;
 	DiffuseIBL *= (vec3(1.0) - Ks);
 
 	vec3 IBL = SpecularIBL + DiffuseIBL;
 
+	vec4 test = texture2D(u_normal,v_uv);
+
 	return u_light_intensity*NdotL*f + IBL;
+	//return texture2D(u_roughness,v_uv).xyz;
 }
 
 void main()
@@ -212,8 +213,8 @@ void main()
 	computeVectors();
 	GetMaterialProperties();
 
-	vec3 emissive = gamma_to_linear(texture2D(u_emissive,v_uv).xyz);
-	vec3 opacity = vec3(1.0);
+	vec3 emissive = gamma_to_linear(texture2D(u_emissive, v_uv).xyz);
 	
-	gl_FragColor = vec4(linear_to_gamma(opacity*getPixelColor() + emissive),1.0);
+	gl_FragColor = vec4(linear_to_gamma(getPixelColor() + emissive),1.0);
+	//gl_FragColor = texture2D(u_roughness,v_uv)*u_roughness_factor;
 }

@@ -139,9 +139,14 @@ float computeGeometry(){
 	float VdotH = max(0.0,dot(vectors.V,vectors.H));
 	float NdotL = max(0.0,dot(vectors.N, vectors.L));
 
-	float first_term = (2.0*NdotH*NdotV)/(VdotH + epsilon);
-	float second_term = (2.0*NdotH*NdotL)/(VdotH + epsilon);
-	float G = min(1.0,min(first_term, second_term));
+	float k = pow(pbr_mat.roughness + 1.0,2.0)/8.0;
+	float G1 = NdotV/(NdotV*(1.0 - k) + k);
+	float G2 = NdotL/(NdotL*(1.0 - k) + k);
+	float G = G1*G2;
+
+	//float first_term = (2.0*NdotH*NdotV)/(VdotH + epsilon);
+	//float second_term = (2.0*NdotH*NdotL)/(VdotH + epsilon);
+	//float G = min(1.0,min(first_term, second_term));
 
 	return G;
 }
@@ -205,7 +210,6 @@ vec3 getPixelColor(){
 	vec4 test = texture2D(u_normal,v_uv);
 
 	return u_light_intensity*NdotL*f + IBL;
-	//return texture2D(u_roughness,v_uv).xyz;
 }
 
 void main()
@@ -216,5 +220,4 @@ void main()
 	vec3 emissive = gamma_to_linear(texture2D(u_emissive, v_uv).xyz);
 	
 	gl_FragColor = vec4(linear_to_gamma(getPixelColor() + emissive),1.0);
-	//gl_FragColor = texture2D(u_roughness,v_uv)*u_roughness_factor;
 }

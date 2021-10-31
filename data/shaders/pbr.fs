@@ -195,7 +195,7 @@ vec3 getPixelColor(){
 	vec3 brdf2D = texture2D(u_LUT, clamp(LUT_coord,0.01,0.99)).xyz;
 
 	vec3 specularSample = getReflectionColor(vectors.R, pbr_mat.roughness); 
-	float cosTheta = max(0.0,dot(vectors.V,vectors.H));
+	float cosTheta = max(0.0,dot(vectors.V,vectors.N));
 	vec3 Ks = FresnelSchlickRoughness(cosTheta, pbr_mat.f0, pbr_mat.roughness);
 	vec3 SpecularBRDF = Ks*brdf2D.x + brdf2D.y; 
 	vec3 SpecularIBL = specularSample * SpecularBRDF;

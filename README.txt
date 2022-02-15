@@ -1,10 +1,5 @@
-COMPILING IN LINUX
-****************************
+Lab 2 ("Physically-based Rendering & HDR") of the "Advanced Graphics" course in the Bachelor's Audiovisual Systems Engineering.
 
-Remember to install the libraries:
+The framework in C++ was already provided by the professors.
 
-sudo apt-get install libsdl2-dev freeglut3 freeglut3-dev
-
-and then just use the makefile:
-
-make
+Programmed by Arnau Blanco and Paula Osés.
